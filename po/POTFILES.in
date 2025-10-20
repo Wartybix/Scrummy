@@ -5,4 +5,4 @@ data/io.github.wartybix.Scrummy.metainfo.xml.in
 data/io.github.wartybix.Scrummy.gschema.xml
 src/main.py
 src/window.py
-src/window.ui
+src/window.blp
