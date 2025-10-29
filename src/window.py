@@ -17,9 +17,9 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw
-from gi.repository import Gtk
+from gi.repository import Adw, Gtk, GLib, Gio
 from scrummy.ingredient_row import IngredientRow
+from scrummy.new_meal_dialog import NewMealDialog
 
 @Gtk.Template(resource_path='/io/github/wartybix/Scrummy/window.ui')
 class ScrummyWindow(Adw.ApplicationWindow):
@@ -32,6 +32,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+        self.add_meal_action = Gio.SimpleAction(name="add_meal")
+        self.add_meal_action.connect("activate", self.add_meal_dialog)
+        self.add_action(self.add_meal_action)
+
         # Dummy UI elements -- TODO remove later
         self.ingredients_list.add(IngredientRow('Beans', 'Use by 25/10/2025'))
         self.ingredients_list.add(IngredientRow('Eggs', 'Use by 01/11/2025'))
@@ -40,3 +44,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback()
     def on_sidebar_activated(self, index, user_data):
         self.split_view.set_show_content(True);
+
+    def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant):
+        dialog = NewMealDialog()
+        dialog.present(self)

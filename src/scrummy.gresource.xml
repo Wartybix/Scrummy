@@ -9,6 +9,7 @@
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
     <file preprocess="xml-stripblanks">ingredient_row.ui</file>
+    <file preprocess="xml-stripblanks">new_meal_dialog.ui</file>
     <file alias="style.css">gtk/style.css</file>
   </gresource>
 </gresources>

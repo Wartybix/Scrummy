@@ -1,0 +1,34 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NewMealDialog: Adw.Dialog {
+  title: _("New Meal");
+  content-width: 450;
+
+  [child]
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {}
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.EntryRow entry_row {
+          title: _("Meal _Name");
+          use-underline: true;
+          entry-activated => $submit();
+        }
+
+        Button button {
+          label: _("_Add");
+          use-underline: true;
+          margin-top: 28;
+          halign: center;
+          sensitive: bind entry_row.text-length;
+          clicked => $submit();
+
+          styles ["pill", "suggested-action"]
+        }
+      }
+    };
+  }
+}
