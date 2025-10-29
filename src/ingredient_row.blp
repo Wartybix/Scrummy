@@ -1,0 +1,71 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $IngredientRow: Adw.ActionRow {
+  title-lines: 1;
+  subtitle-lines: 1;
+  use-markup: false;
+  selectable: false;
+
+  [prefix]
+  Image {
+    icon-name: "list-drag-handle-symbolic";
+
+    styles ["drag-handle"]
+  }
+
+  [suffix]
+  Button warning_icon {
+    icon-name: "error-outline-symbolic";
+    tooltip-text: _("View Error Details");
+    valign: center;
+    visible: false;
+    action-name: "row.on-error";
+
+    styles ["error", "flat"]
+  }
+
+  [suffix]
+  MenuButton menu_button {
+    icon-name: "view-more-symbolic";
+    tooltip-text: _("View More");
+    valign: center;
+    menu-model: ingredient_menu;
+
+    styles ["flat"]
+  }
+
+  // DragSource drag_source {
+  //   actions: move;
+  //   propagation-phase: none;
+  //   prepare => $on_drag_prepare() not-swapped;
+  //   drag-begin => $on_drag_begin() not-swapped;
+  // }
+}
+
+menu ingredient_menu {
+  section {
+    item {
+      label: _("Mark Eaten");
+    }
+    item {
+      label: _("Mark Frozen");
+    }
+  }
+  section {
+    item {
+      label: _("Duplicate");
+    }
+    item {
+      label: _("Move To…");
+    }
+  }
+  section {
+    item {
+      label: _("Edit…");
+    }
+    item {
+      label: _("Delete…");
+    }
+  }
+}

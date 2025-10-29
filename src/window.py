@@ -19,12 +19,24 @@
 
 from gi.repository import Adw
 from gi.repository import Gtk
+from scrummy.ingredient_row import IngredientRow
 
 @Gtk.Template(resource_path='/io/github/wartybix/Scrummy/window.ui')
 class ScrummyWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ScrummyWindow'
 
     label = Gtk.Template.Child()
+    ingredients_list = Gtk.Template.Child()
+    split_view = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        # Dummy UI elements -- TODO remove later
+        self.ingredients_list.add(IngredientRow('Beans', 'Use by 25/10/2025'))
+        self.ingredients_list.add(IngredientRow('Eggs', 'Use by 01/11/2025'))
+        self.ingredients_list.add(IngredientRow('Rice', 'Use by 01/01/2027'))
+
+    @Gtk.Template.Callback()
+    def on_sidebar_activated(self, index, user_data):
+        self.split_view.set_show_content(True);

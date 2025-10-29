@@ -27,6 +27,8 @@ from gi.repository import Gtk, Gio, Adw
 from .window import ScrummyWindow
 
 
+# TODO: Move flatpak JSON file to build-aux 
+
 class ScrummyApplication(Adw.Application):
     """The main application singleton class."""
 
@@ -50,6 +52,8 @@ class ScrummyApplication(Adw.Application):
         win.present()
 
     def on_about_action(self, *args):
+        # TODO: Update
+
         """Callback for the app.about action."""
         about = Adw.AboutDialog(application_name='scrummy',
                                 application_icon='io.github.wartybix.Scrummy',

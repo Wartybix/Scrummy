@@ -6,29 +6,185 @@ template $ScrummyWindow: Adw.ApplicationWindow {
   default-width: 800;
   default-height: 600;
 
-  content: Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {
-      [end]
-      MenuButton {
-        primary: true;
-        icon-name: "open-menu-symbolic";
-        tooltip-text: _("Main Menu");
-        menu-model: primary_menu;
+  styles ["devel"]
+
+  Adw.Breakpoint window_breakpoint {
+    condition ("max-width: 500sp")
+
+    setters {
+      split_view.collapsed: true;
+      sidebar.mode: page;
+    }
+  }
+
+  content: Adw.NavigationSplitView split_view {
+    min-sidebar-width: 220;
+
+    [sidebar]
+    Adw.NavigationPage {
+      title: _("Meals");
+
+      Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+          [start]
+          ToggleButton {
+            icon-name: "edit-find-symbolic";
+            tooltip-text: _("Search");
+          }
+
+          [end]
+          MenuButton {
+            primary: true;
+            icon-name: "open-menu-symbolic";
+            tooltip-text: _("Main Menu");
+            menu-model: primary_menu;
+          }
+        }
+
+        Adw.Sidebar sidebar {
+          activated => $on_sidebar_activated();
+
+          Adw.SidebarSection {
+            Adw.SidebarItem {
+              title: _("_Unsorted Food");
+              use-underline: true;
+              icon-name: "refrigerator-symbolic";
+              subtitle: "8 Items";
+            }
+          }
+
+          Adw.SidebarSection {
+            title: "Eat by 25/10/2025";
+
+            Adw.SidebarItem {
+              title: "Yummy Dinner";
+              subtitle: "3 Items";
+            }
+            Adw.SidebarItem {
+              title: "Salad";
+              subtitle: "3 Items";
+            }
+          }
+
+          Adw.SidebarSection {
+            title: "Eat by 27/10/2025";
+
+            Adw.SidebarItem {
+              title: "Jalfrezi";
+              subtitle: "5 Items";
+            }
+          }
+        }
+
+        [bottom]
+        ActionBar {
+          [center]
+          Button {
+            styles ["pill"]
+
+            margin-top: 6;
+            margin-bottom: 6;
+
+            label: _("Add _Meal…");
+            use-underline: true;
+          }
+        }
       }
     }
 
-    content: Label label {
-      label: _("Hello, World!");
+    [content]
+    Adw.NavigationPage {
+      title: "Yummy Dinner";
 
-      styles [
-        "title-1",
-      ]
-    };
+      Adw.ToolbarView {
+        [top]
+        Adw.HeaderBar {
+          [end]
+          Adw.SplitButton {
+            icon-name: "check-plain-symbolic";
+            tooltip-text: _("Mark Eaten");
+            menu-model: meal_menu;
+          }
+        }
+
+        [top]
+        SearchBar {
+          search-mode-enabled: true;
+          [child]
+          Adw.Clamp {
+            maximum-size: 400;
+            hexpand: true;
+            margin-start: 6;
+            margin-end: 6;
+
+            [child]
+            SearchEntry {
+              placeholder-text: _("Search ingredients");
+            }
+          }
+        }
+
+        content: Adw.PreferencesPage {
+          vexpand: true;
+
+          [child]
+          Adw.PreferencesGroup ingredients_list {
+          }
+        };
+
+        [bottom]
+        ActionBar {
+          [center]
+          Button {
+            styles ["pill"]
+
+            margin-top: 6;
+            margin-bottom: 6;
+            label: _("Add _Ingredient…");
+            use-underline: true;
+          }
+        }
+      }
+    }
   };
 }
 
+menu meal_menu {
+  section {
+    item {
+      label: _("Duplicate");
+    }
+  }
+  section {
+    item {
+      label: _("Rename…");
+    }
+    item {
+      label: _("Delete…");
+    }
+  }
+}
+
 menu primary_menu {
+  section {
+    item {
+      label: _("Sync with Remote");
+    }
+    item {
+      label: _("Configure Remote…");
+    }
+  }
+
+  section {
+    item {
+      label: _("Import Meals File…");
+    }
+    item {
+      label: _("Export Meals File…");
+    }
+  }
+
   section {
     item {
       label: _("_Preferences");
