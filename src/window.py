@@ -20,12 +20,14 @@
 from gi.repository import Adw, Gtk, GLib, Gio
 from scrummy.ingredient_row import IngredientRow
 from scrummy.new_meal_dialog import NewMealDialog
+from scrummy.new_ingredient_dialog import NewIngredientDialog
+from scrummy.meal import Meal
+from scrummy.ingredient import Ingredient
 
 @Gtk.Template(resource_path='/io/github/wartybix/Scrummy/window.ui')
 class ScrummyWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ScrummyWindow'
 
-    label = Gtk.Template.Child()
     ingredients_list = Gtk.Template.Child()
     split_view = Gtk.Template.Child()
 
@@ -35,6 +37,13 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_meal_action = Gio.SimpleAction(name="add_meal")
         self.add_meal_action.connect("activate", self.add_meal_dialog)
         self.add_action(self.add_meal_action)
+
+        self.add_ingredient_action = Gio.SimpleAction(name="add_ingredient")
+        self.add_ingredient_action.connect(
+            "activate",
+            self.add_ingredient_dialog
+        )
+        self.add_action(self.add_ingredient_action)
 
         # Dummy UI elements -- TODO remove later
         self.ingredients_list.add(IngredientRow('Beans', 'Use by 25/10/2025'))
@@ -46,5 +55,21 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.split_view.set_show_content(True);
 
     def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant):
-        dialog = NewMealDialog()
+        def add_meal(name: str):
+            meal = Meal(name)
+            print(meal)
+
+        dialog = NewMealDialog(add_meal)
+        dialog.present(self)
+
+    def add_ingredient_dialog(
+        self,
+        action: Gio.Action,
+        parameter: GLib.Variant
+    ):
+        def add_ingredient(name: str, date: 'datetime'):
+            ingredient = Ingredient(name, date)
+            print(ingredient)
+
+        dialog = NewIngredientDialog(add_ingredient)
         dialog.present(self)

@@ -1,0 +1,74 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $NewIngredientDialog: Adw.Dialog {
+  title: _("New Ingredient");
+  content-width: 450;
+  focus-widget: name_row;
+
+  // TODO: improve date entry like gnome calendar's
+
+  [child]
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-start-title-buttons: false;
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("_Cancel");
+        use-underline: true;
+
+        clicked => $cancel();
+      }
+
+      [end]
+      Button {
+        label: _("_Save");
+        use-underline: true;
+        sensitive: bind name_row.text-length;
+        clicked => $submit();
+
+        styles ["suggested-action"]
+      }
+    }
+
+    content: Adw.PreferencesPage {
+      Adw.PreferencesGroup {
+        Adw.EntryRow name_row {
+          title: _("Ingredient _Name");
+          use-underline: true;
+
+          // TODO: previous ingredient dropdown suggestions? + better rejection
+        }
+
+        Adw.EntryRow date_row {
+          title: _("Expiry _Date");
+          use-underline: true;
+
+          [suffix]
+          MenuButton {
+            icon-name: "month-symbolic";
+            valign: center;
+
+            popover: Popover {
+              margin-top: 12;
+              margin-end: 12;
+              margin-bottom: 12;
+              margin-start: 12;
+
+              Button {
+                label: _("_Remove Date");
+                use-underline: true;
+                clicked => $clear_date();
+              }
+            };
+
+            styles ["flat"]
+          }
+        }
+      }
+    };
+  }
+}

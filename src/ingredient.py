@@ -1,4 +1,4 @@
-# new_meal_dialog.py
+# ingredient.py
 #
 # Copyright 2025 Wartybix
 #
@@ -17,25 +17,31 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, GLib
-from typing import Callable
+from typing import Optional
 
-@Gtk.Template(resource_path="/io/github/wartybix/Scrummy/new_meal_dialog.ui")
-class NewMealDialog(Adw.Dialog):
-    """ An action row representing an ingredient / food item """
-    __gtype_name__ = "NewMealDialog"
+class Ingredient:
+    def __init__(self, name: str, bb_date: 'datetime'):
+        self.name = name
+        self.bb_date = bb_date
+        self.frozen = False
 
-    entry_row = Gtk.Template.Child()
+    def set_name(self, name):
+        self.name = name
 
-    def __init__(self, on_submit: Callable[[Gtk.Widget, str], None], **kwargs):
-        super().__init__(**kwargs)
+    def get_name(self):
+        return self.name
 
-        self.on_submit = on_submit
+    def set_bb_date(self, bb_date):
+        self.bb_date = bb_date
 
-    @Gtk.Template.Callback()
-    def submit(self, widget):
-        if self.entry_row.get_text_length() == 0:
-            return
+    def get_bb_date(self):
+        return self.bb_date
 
-        self.on_submit(self.entry_row.get_text())
-        self.close()
+    def set_frozen(self, is_frozen: bool):
+        self.frozen = is_frozen
+
+    def get_frozen(self):
+        return self.frozen
+
+    def __str__(self):
+        return f"{self.name} (exp. {self.bb_date}) -- {'un' if not self.frozen else ''}frozen"

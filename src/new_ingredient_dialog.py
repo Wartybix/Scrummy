@@ -1,4 +1,4 @@
-# new_meal_dialog.py
+# new_ingredient_dialog.py
 #
 # Copyright 2025 Wartybix
 #
@@ -19,23 +19,39 @@
 
 from gi.repository import Adw, Gtk, GLib
 from typing import Callable
+import datetime
 
-@Gtk.Template(resource_path="/io/github/wartybix/Scrummy/new_meal_dialog.ui")
-class NewMealDialog(Adw.Dialog):
+@Gtk.Template(resource_path="/io/github/wartybix/Scrummy/new_ingredient_dialog.ui")
+class NewIngredientDialog(Adw.Dialog):
     """ An action row representing an ingredient / food item """
-    __gtype_name__ = "NewMealDialog"
+    __gtype_name__ = "NewIngredientDialog"
 
-    entry_row = Gtk.Template.Child()
+    name_row = Gtk.Template.Child()
+    date_row = Gtk.Template.Child()
 
-    def __init__(self, on_submit: Callable[[Gtk.Widget, str], None], **kwargs):
+    def __init__(self, on_submit: Callable[[Gtk.Widget, str, 'datetime'], None], **kwargs):
         super().__init__(**kwargs)
-
         self.on_submit = on_submit
 
     @Gtk.Template.Callback()
+    def clear_date(self, widget):
+        self.date_row.set_text('');
+
+    @Gtk.Template.Callback()
     def submit(self, widget):
-        if self.entry_row.get_text_length() == 0:
+        if self.name_row.get_text_length() == 0:
             return
 
-        self.on_submit(self.entry_row.get_text())
+        name = self.name_row.get_text()
+
+        try:
+            date = datetime.datetime.strptime(self.date_row.get_text(), ('%d/%m/%Y'))
+        except ValueError:
+            date = None
+
+        self.on_submit(name, date)
+        self.close()
+
+    @Gtk.Template.Callback()
+    def cancel(self, widget):
         self.close()
