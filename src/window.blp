@@ -28,7 +28,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
         [top]
         Adw.HeaderBar {
           [start]
-          ToggleButton {
+          ToggleButton search_btn {
             icon-name: "edit-find-symbolic";
             tooltip-text: _("Search");
           }
@@ -42,8 +42,30 @@ template $ScrummyWindow: Adw.ApplicationWindow {
           }
         }
 
+        [top]
+        SearchBar {
+          search-mode-enabled: bind search_btn.active bidirectional;
+          key-capture-widget: template;
+
+          child: SearchEntry search_entry {
+            placeholder-text: _("Search meals");
+            hexpand: true;
+          };
+        }
+
         Adw.Sidebar sidebar {
           activated => $on_sidebar_activated();
+
+          filter: StringFilter {
+            expression: expr item as <Adw.SidebarItem>.title;
+            search: bind search_entry.text;
+          };
+
+          placeholder: Adw.StatusPage {
+            icon-name: "edit-find-symbolic";
+            title: _("No Results Found");
+            description: _("Try a different search");
+          };
 
           Adw.SidebarSection {
             Adw.SidebarItem {
