@@ -19,10 +19,13 @@
 
 from scrummy.ingredient import Ingredient
 from typing import List
+from gi.repository import Adw, Gtk, GObject
 
-class Meal:
-    def __init__(self, name: str, ingredients: List['Ingredient']=[]):
-        self.name = name
+class Meal(Adw.SidebarItem):
+    """ Sidebar item representing a meal """
+    __gtype_name__ = "Meal"
+
+    def __init__(self, ingredients: List['Ingredient']=[], **kwargs):
         self.ingredients = ingredients
 
     def set_name(self, name):

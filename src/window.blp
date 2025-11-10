@@ -55,6 +55,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
         Adw.Sidebar sidebar {
           activated => $on_sidebar_activated();
+          selected: 0;
 
           filter: StringFilter {
             expression: expr item as <Adw.SidebarItem>.title;
@@ -68,7 +69,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
           };
 
           Adw.SidebarSection {
-            Adw.SidebarItem {
+            $Meal unsorted_food {
               title: _("_Unsorted Food");
               use-underline: true;
               icon-name: "refrigerator-symbolic";
@@ -118,14 +119,14 @@ template $ScrummyWindow: Adw.ApplicationWindow {
     }
 
     [content]
-    Adw.NavigationPage {
+    Adw.NavigationPage main_nav_page {
       title: "Yummy Dinner";
 
       Adw.ToolbarView {
         [top]
         Adw.HeaderBar {
           [end]
-          Adw.SplitButton {
+          Adw.SplitButton eat_btn {
             icon-name: "check-plain-symbolic";
             tooltip-text: _("Mark Eaten");
             menu-model: meal_menu;
@@ -143,9 +144,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
             margin-end: 6;
 
             [child]
-            SearchEntry {
-              placeholder-text: _("Search ingredients");
-            }
+            SearchEntry ingredient_search_entry {}
           }
         }
 
@@ -160,12 +159,11 @@ template $ScrummyWindow: Adw.ApplicationWindow {
         [bottom]
         ActionBar {
           [center]
-          Button {
+          Button add_ingredient_btn {
             styles ["pill"]
 
             margin-top: 6;
             margin-bottom: 6;
-            label: _("Add _Ingredient…");
             use-underline: true;
             action-name: "win.add_ingredient";
           }

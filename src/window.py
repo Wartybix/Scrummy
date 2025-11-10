@@ -30,6 +30,12 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
     ingredients_list = Gtk.Template.Child()
     split_view = Gtk.Template.Child()
+    sidebar = Gtk.Template.Child()
+    main_nav_page = Gtk.Template.Child()
+    unsorted_food = Gtk.Template.Child()
+    add_ingredient_btn = Gtk.Template.Child()
+    ingredient_search_entry = Gtk.Template.Child()
+    eat_btn = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -50,9 +56,41 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.ingredients_list.add(IngredientRow('Eggs', 'Use by 01/11/2025'))
         self.ingredients_list.add(IngredientRow('Rice', 'Use by 01/01/2027'))
 
+        self.refresh_main_content()
+
+    def refresh_main_content(self):
+        selected_item = self.sidebar.get_selected_item()
+        page_title = selected_item.get_title()
+
+        if selected_item == self.unsorted_food:
+            ingredient_search_label = _("Search items")
+            # TRANSLATORS: please use U+2026 (…) rather than 3 dots "...", if
+            # it's appropriate/applicable to your language.
+            add_ingredient_btn_label = _("Add _Item…")
+
+            page_title = page_title.replace("_", "")
+            self.eat_btn.set_visible(False)
+        else:
+            ingredient_search_label = _("Search ingredients")
+            # TRANSLATORS: please use U+2026 (…) rather than 3 dots "...", if
+            # it's appropriate/applicable to your language.
+            add_ingredient_btn_label = _("Add _Ingredient…")
+
+            self.eat_btn.set_visible(True)
+
+        self.main_nav_page.set_title(page_title)
+
+        self.ingredient_search_entry.set_placeholder_text(ingredient_search_label)
+        self.add_ingredient_btn.set_label(add_ingredient_btn_label)
+
+        print(type(self.sidebar.get_items()))
+        print(list(self.sidebar.get_items()))
+
+        self.split_view.set_show_content(True);
+
     @Gtk.Template.Callback()
     def on_sidebar_activated(self, index, user_data):
-        self.split_view.set_show_content(True);
+        self.refresh_main_content()
 
     def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant):
         def add_meal(name: str):
