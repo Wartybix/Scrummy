@@ -25,6 +25,7 @@ gi.require_version('Adw', '1')
 
 from gi.repository import Gtk, Gio, Adw
 from .window import ScrummyWindow
+from scrummy import APPLICATION_ID, PREFIX, VERSION
 
 
 # TODO: Move flatpak JSON file to build-aux 
@@ -33,9 +34,9 @@ class ScrummyApplication(Adw.Application):
     """The main application singleton class."""
 
     def __init__(self):
-        super().__init__(application_id='io.github.wartybix.Scrummy',
+        super().__init__(application_id=APPLICATION_ID,
                          flags=Gio.ApplicationFlags.DEFAULT_FLAGS,
-                         resource_base_path='/io/github/wartybix/Scrummy')
+                         resource_base_path=PREFIX)
         self.create_action('quit', lambda *_: self.quit(), ['<primary>q'])
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
@@ -49,18 +50,34 @@ class ScrummyApplication(Adw.Application):
         win = self.props.active_window
         if not win:
             win = ScrummyWindow(application=self)
+            if self.get_application_id() == "io.github.wartybix.Scrummy.Devel":
+                win.get_style_context().add_class("devel")
+
         win.present()
 
     def on_about_action(self, *args):
         # TODO: Update
 
+        print(APPLICATION_ID)
+
         """Callback for the app.about action."""
-        about = Adw.AboutDialog(application_name='scrummy',
-                                application_icon='io.github.wartybix.Scrummy',
-                                developer_name='Wartybix',
-                                version='0.1.0',
-                                developers=['Wartybix'],
-                                copyright='© 2025 Wartybix')
+        # about = Adw.AboutDialog(application_name='scrummy',
+        #                         application_icon='@APPLICATION_ID@',
+        #                         developer_name='Wartybix',
+        #                         version='0.1.0',
+        #                         developers=['Wartybix'],
+        #                         copyright='© 2025 Wartybix')
+
+        about = Adw.AboutDialog.new_from_appdata(
+            f"{PREFIX}/{APPLICATION_ID}.metainfo.xml", VERSION
+        )
+
+        about.set_version(VERSION)
+
+        about.set_developers(['Wartybix https://github.com/Wartybix/'])
+
+        about.set_copyright('© 2025 Wartybix')
+
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
         about.present(self.props.active_window)

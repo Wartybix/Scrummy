@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="scrummy">
-	<schema id="io.github.wartybix.Scrummy" path="/io/github/wartybix/Scrummy/">
+	<schema id="@APPLICATION_ID@" path="@PREFIX@/">
 	</schema>
 </schemalist>

@@ -1,6 +1,16 @@
+conf = configuration_data()
+conf.set('ICON', APPLICATION_ID)
+conf.set('APPLICATION_ID', APPLICATION_ID)
+conf.set('PREFIX', PREFIX)
+conf.set('bindir', get_option('prefix') / get_option('bindir'))
+
 desktop_file = i18n.merge_file(
-        input: 'io.github.wartybix.Scrummy.desktop.in',
-       output: 'io.github.wartybix.Scrummy.desktop',
+        input: configure_file(
+          input: 'io.github.wartybix.Scrummy.desktop.in',
+          output: APPLICATION_ID + '.desktop.in',
+          configuration: conf
+        ),
+       output: APPLICATION_ID + '.desktop',
          type: 'desktop',
        po_dir: '../po',
       install: true,
@@ -13,8 +23,12 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-        input: 'io.github.wartybix.Scrummy.metainfo.xml.in',
-       output: 'io.github.wartybix.Scrummy.metainfo.xml',
+        input: configure_file(
+          input: 'io.github.wartybix.Scrummy.metainfo.xml.in',
+          output: APPLICATION_ID + '.metainfo.xml.in',
+          configuration: conf
+        ),
+       output: APPLICATION_ID + '.metainfo.xml',
        po_dir: '../po',
       install: true,
   install_dir: get_option('datadir') / 'metainfo'
@@ -24,7 +38,12 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
      args: ['validate', '--no-net', '--explain', appstream_file])
 
-install_data('io.github.wartybix.Scrummy.gschema.xml',
+install_data(
+  configure_file(
+    input: 'io.github.wartybix.Scrummy.gschema.xml.in',
+    output: APPLICATION_ID + '.gschema.xml',
+    configuration: conf
+  ),
   install_dir: get_option('datadir') / 'glib-2.0' / 'schemas'
 )
 
@@ -34,12 +53,10 @@ test('Validate schema file',
      args: ['--strict', '--dry-run', meson.current_source_dir()])
 
 
-service_conf = configuration_data()
-service_conf.set('bindir', get_option('prefix') / get_option('bindir'))
 configure_file(
   input: 'io.github.wartybix.Scrummy.service.in',
-  output: 'io.github.wartybix.Scrummy.service',
-  configuration: service_conf,
+  output: APPLICATION_ID + '.service',
+  configuration: conf,
   install_dir: get_option('datadir') / 'dbus-1' / 'services'
 )
 

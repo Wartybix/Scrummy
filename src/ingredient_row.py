@@ -18,8 +18,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk
+from scrummy import PREFIX
 
-@Gtk.Template(resource_path="/io/github/wartybix/Scrummy/ingredient_row.ui")
+@Gtk.Template(resource_path=f"{PREFIX}/ingredient_row.ui")
 class IngredientRow(Adw.ActionRow):
     """ An action row representing an ingredient / food item """
     __gtype_name__ = "IngredientRow"

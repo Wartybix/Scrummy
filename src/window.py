@@ -23,8 +23,9 @@ from scrummy.new_meal_dialog import NewMealDialog
 from scrummy.new_ingredient_dialog import NewIngredientDialog
 from scrummy.meal import Meal
 from scrummy.ingredient import Ingredient
+from scrummy import PREFIX
 
-@Gtk.Template(resource_path='/io/github/wartybix/Scrummy/window.ui')
+@Gtk.Template(resource_path=f'{PREFIX}/window.ui')
 class ScrummyWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'ScrummyWindow'
 

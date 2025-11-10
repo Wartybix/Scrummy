@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/wartybix/Scrummy/icons/scalable/actions">
+  <gresource prefix="@PREFIX@/icons/scalable/actions">
     <file preprocess="xml-stripblanks" alias="edit-find-symbolic.svg">../data/icons/scalable/actions/edit-find-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="check-plain-symbolic.svg">../data/icons/scalable/actions/check-plain-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="refrigerator-symbolic.svg">../data/icons/scalable/actions/refrigerator-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="month-symbolic.svg">../data/icons/scalable/actions/month-symbolic.svg</file>
   </gresource>
-  <gresource prefix="/io/github/wartybix/Scrummy">
+  <gresource prefix="@PREFIX@">
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
     <file preprocess="xml-stripblanks">ingredient_row.ui</file>
     <file preprocess="xml-stripblanks">new_meal_dialog.ui</file>
     <file preprocess="xml-stripblanks">new_ingredient_dialog.ui</file>
     <file alias="style.css">gtk/style.css</file>
+    <file preprocess="xml-stripblanks" alias="@APPLICATION_ID@.metainfo.xml">../data/@APPLICATION_ID@.metainfo.xml</file>
   </gresource>
 </gresources>

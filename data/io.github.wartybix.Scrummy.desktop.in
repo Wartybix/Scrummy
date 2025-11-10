@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=scrummy
 Exec=scrummy
-Icon=io.github.wartybix.Scrummy
+Icon=@ICON@
 Terminal=false
 Type=Application
 Categories=Utility;

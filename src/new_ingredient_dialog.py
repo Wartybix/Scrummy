@@ -20,8 +20,9 @@
 from gi.repository import Adw, Gtk, GLib
 from typing import Callable
 import datetime
+from scrummy import PREFIX
 
-@Gtk.Template(resource_path="/io/github/wartybix/Scrummy/new_ingredient_dialog.ui")
+@Gtk.Template(resource_path=f"{PREFIX}/new_ingredient_dialog.ui")
 class NewIngredientDialog(Adw.Dialog):
     """ An action row representing an ingredient / food item """
     __gtype_name__ = "NewIngredientDialog"

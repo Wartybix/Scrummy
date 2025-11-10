@@ -14,21 +14,27 @@ blueprints = custom_target('blueprints',
   command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
 )
 
+python = import('python')
+
+conf = configuration_data()
+conf.set('PYTHON', python.find_installation('python3').full_path())
+conf.set('VERSION', meson.project_version() + VCS_TAG)
+conf.set('localedir', get_option('prefix') / get_option('localedir'))
+conf.set('pkgdatadir', pkgdatadir)
+conf.set('PREFIX', PREFIX)
+conf.set('APPLICATION_ID', APPLICATION_ID)
+
 gnome.compile_resources('scrummy',
-  'scrummy.gresource.xml',
+  configure_file(
+    input: 'scrummy.gresource.xml.in',
+    output: 'scrummy.gresource.xml',
+    configuration: conf
+  ),
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
   dependencies: blueprints
 )
-
-python = import('python')
-
-conf = configuration_data()
-conf.set('PYTHON', python.find_installation('python3').full_path())
-conf.set('VERSION', meson.project_version())
-conf.set('localedir', get_option('prefix') / get_option('localedir'))
-conf.set('pkgdatadir', pkgdatadir)
 
 configure_file(
   input: 'scrummy.in',
@@ -40,7 +46,11 @@ configure_file(
 )
 
 scrummy_sources = [
-  '__init__.py',
+  configure_file(
+    input: '__init__.py.in',
+    output: '__init__.py',
+    configuration: conf
+  ),
   'main.py',
   'window.py',
   'ingredient_row.py',
