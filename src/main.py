@@ -80,6 +80,13 @@ class ScrummyApplication(Adw.Application):
 
         # Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
         about.set_translator_credits(_('translator-credits'))
+
+        about.add_other_app(
+            "io.github.wartybix.Constrict",
+            _("Constrict"),
+            _("Compress videos to target sizes")
+        )
+
         about.present(self.props.active_window)
 
     def on_preferences_action(self, widget, _):

@@ -6,6 +6,9 @@
     <file preprocess="xml-stripblanks" alias="refrigerator-symbolic.svg">../data/icons/scalable/actions/refrigerator-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="month-symbolic.svg">../data/icons/scalable/actions/month-symbolic.svg</file>
   </gresource>
+  <gresource prefix="@PREFIX@/icons/">
+    <file preprocess="xml-stripblanks" alias="io.github.wartybix.Constrict.svg">../data/icons/io.github.wartybix.Constrict.svg</file>
+  </gresource>
   <gresource prefix="@PREFIX@">
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
