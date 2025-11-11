@@ -18,21 +18,34 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from scrummy.ingredient import Ingredient
-from typing import List
+from typing import List, Optional
+from gettext import ngettext
 from gi.repository import Adw, Gtk, GObject
 
 class Meal(Adw.SidebarItem):
     """ Sidebar item representing a meal """
     __gtype_name__ = "Meal"
 
-    def __init__(self, ingredients: List['Ingredient']=[], **kwargs):
+    def __init__(
+        self,
+        name: str="",
+        ingredients: List['Ingredient']=[],
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+
+        self.set_title(name)
         self.ingredients = ingredients
+        self.update_subtitle()
 
-    def set_name(self, name):
-        self.name = name
+    def update_subtitle(self):
+        num_ingredients = len(self.ingredients)
+        self.set_subtitle(
+            ngettext("{} Ingredient", "{} Ingredients", num_ingredients).format(num_ingredients)
+        )
 
-    def get_name(self, name):
-        return self.name
+    def get_bb_date(self) -> Optional['datetime']:
+        return None
 
     def add_ingredient(self, ingredient: 'Ingredient'):
         self.ingredients += ingredient
@@ -41,7 +54,8 @@ class Meal(Adw.SidebarItem):
         self.ingredients -= ingredient
 
     def __str__(self):
-        msg = self.name
+        msg = self.get_title()
+
         if self.ingredients:
             for ingredient in self.ingredients:
                 msg += f'\n\t{ingredient}'
