@@ -22,7 +22,6 @@ from scrummy.ingredient_row import IngredientRow
 from scrummy.new_meal_dialog import NewMealDialog
 from scrummy.new_ingredient_dialog import NewIngredientDialog
 from scrummy.meal import Meal
-from scrummy.ingredient import Ingredient
 from scrummy import PREFIX
 import datetime
 from typing import Optional
@@ -55,9 +54,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_action(self.add_ingredient_action)
 
         # Dummy UI elements -- TODO remove later
-        self.ingredients_list.add(IngredientRow('Beans', 'Use by 25/10/2025'))
-        self.ingredients_list.add(IngredientRow('Eggs', 'Use by 01/11/2025'))
-        self.ingredients_list.add(IngredientRow('Rice', 'Use by 01/01/2027'))
+        self.unsorted_food.add_ingredient(IngredientRow('Beans', datetime.date(2025, 11, 15)))
+        self.unsorted_food.add_ingredient(IngredientRow('Eggs', datetime.date(2025, 12, 15)))
+        self.unsorted_food.add_ingredient(IngredientRow('Rice', datetime.date(2027, 1, 1)))
 
         self.refresh_main_content()
 
@@ -83,11 +82,14 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         self.main_nav_page.set_title(page_title)
 
+        self.ingredients_list.bind_model(selected_item.ingredients, lambda x: x)
+
         self.ingredient_search_entry.set_placeholder_text(ingredient_search_label)
         self.add_ingredient_btn.set_label(add_ingredient_btn_label)
 
-        print(type(self.sidebar.get_items()))
-        print(list(self.sidebar.get_items()))
+        print('------------')
+        for meal in list(self.sidebar.get_items()):
+            print(meal)
 
         self.split_view.set_show_content(True);
 
@@ -104,7 +106,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
     def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant):
         def add_meal(name: str):
-            meal = Meal(name)
+            meal = Meal(name, Gio.ListStore())
 
             undated_section = self.sidebar.get_section(1)
             if undated_section is None or self.sidebar_section_get_bb_date(undated_section) is not None:
@@ -114,7 +116,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
             undated_section.append(meal)
 
-            print(meal)
+            print('------------')
+            for meal in list(self.sidebar.get_items()):
+                print(meal)
 
         dialog = NewMealDialog(add_meal)
         dialog.present(self)
@@ -124,9 +128,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
         action: Gio.Action,
         parameter: GLib.Variant
     ):
-        def add_ingredient(name: str, date: 'datetime'):
-            ingredient = Ingredient(name, date)
-            print(ingredient)
+        def add_ingredient(name: str, date: Optional['datetime']):
+            ingredient = IngredientRow(name, date)
+            selected_item = self.sidebar.get_selected_item()
+            selected_item.add_ingredient(ingredient)
 
         dialog = NewIngredientDialog(add_ingredient)
         dialog.present(self)

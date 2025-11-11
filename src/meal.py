@@ -17,10 +17,10 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from scrummy.ingredient import Ingredient
+from scrummy.ingredient_row import IngredientRow
 from typing import List, Optional
 from gettext import ngettext
-from gi.repository import Adw, Gtk, GObject
+from gi.repository import Adw, Gtk, Gio
 
 class Meal(Adw.SidebarItem):
     """ Sidebar item representing a meal """
@@ -29,7 +29,7 @@ class Meal(Adw.SidebarItem):
     def __init__(
         self,
         name: str="",
-        ingredients: List['Ingredient']=[],
+        ingredients: 'GioListStore'=Gio.ListStore(),
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -48,7 +48,8 @@ class Meal(Adw.SidebarItem):
         return None
 
     def add_ingredient(self, ingredient: 'Ingredient'):
-        self.ingredients += ingredient
+        self.ingredients.append(ingredient)
+        self.update_subtitle()
 
     def remove_ingredient(self, ingredient: 'Ingredient'):
         self.ingredients -= ingredient
