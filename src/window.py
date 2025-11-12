@@ -36,11 +36,13 @@ class ScrummyWindow(Adw.ApplicationWindow):
     main_nav_page = Gtk.Template.Child()
     unsorted_food = Gtk.Template.Child()
     add_ingredient_btn = Gtk.Template.Child()
+    add_ingredient_btn_empty = Gtk.Template.Child()
     ingredient_search_entry = Gtk.Template.Child()
     eat_btn = Gtk.Template.Child()
     viewstack = Gtk.Template.Child()
     search_bar = Gtk.Template.Child()
     add_ingredient_action_bar = Gtk.Template.Child()
+    empty_status_page = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -76,6 +78,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
             page_title = page_title.replace("_", "")
             self.eat_btn.set_visible(False)
+
+            empty_status_page_title = _("No Food")
+            empty_status_page_desc = _("Add snacks and miscellaneous food here")
         else:
             ingredient_search_label = _("Search ingredients")
             # TRANSLATORS: please use U+2026 (…) rather than 3 dots "...", if
@@ -83,6 +88,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
             add_ingredient_btn_label = _("Add _Ingredient…")
 
             self.eat_btn.set_visible(True)
+
+            empty_status_page_title = _("Empty Meal")
+            empty_status_page_desc = _("Add ingredients to sort this meal in the agenda")
 
         self.main_nav_page.set_title(page_title)
 
@@ -93,6 +101,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         self.ingredient_search_entry.set_placeholder_text(ingredient_search_label)
         self.add_ingredient_btn.set_label(add_ingredient_btn_label)
+        self.add_ingredient_btn_empty.set_label(add_ingredient_btn_label)
+        self.empty_status_page.set_title(empty_status_page_title)
+        self.empty_status_page.set_description(empty_status_page_desc)
 
         print('------------')
         for meal in list(self.sidebar.get_items()):
@@ -113,7 +124,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
     def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant):
         def add_meal(name: str):
-            meal = Meal(name, Gio.ListStore())
+            meal = Meal(name, Gio.ListStore(), False)
 
             undated_section = self.sidebar.get_section(1)
             if undated_section is None or self.sidebar_section_get_bb_date(undated_section) is not None:

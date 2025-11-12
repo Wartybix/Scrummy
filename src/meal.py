@@ -30,18 +30,25 @@ class Meal(Adw.SidebarItem):
         self,
         name: str="",
         ingredients: 'GioListStore'=Gio.ListStore(),
+        misc_meal: bool=True,
         **kwargs
     ):
         super().__init__(**kwargs)
 
         self.set_title(name)
         self.ingredients = ingredients
+        self.misc_meal = misc_meal
         self.update_subtitle()
 
     def update_subtitle(self):
         num_ingredients = len(self.ingredients)
+        if self.misc_meal:
+            subtitle = ngettext("{} Item", "{} Items", num_ingredients)
+        else:
+            subtitle = ngettext("{} Ingredient", "{} Ingredients", num_ingredients)
+
         self.set_subtitle(
-            ngettext("{} Ingredient", "{} Ingredients", num_ingredients).format(num_ingredients)
+            subtitle.format(num_ingredients)
         )
 
     def get_bb_date(self) -> Optional['datetime']:

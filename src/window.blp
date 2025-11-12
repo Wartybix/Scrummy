@@ -126,13 +126,11 @@ template $ScrummyWindow: Adw.ApplicationWindow {
         Adw.ViewStack viewstack {
           Adw.ViewStackPage {
             name: "empty-meal-page";
-            child: Adw.StatusPage {
-              title: _("Empty Meal");
+            child: Adw.StatusPage empty_status_page {
               icon-name: "restaurant-symbolic";
-              description: _("Add an ingredient to get started");
 
-              Button {
-                label: _("Add Ingredient…");
+              Button add_ingredient_btn_empty {
+                use-underline: true;
                 can-shrink: true;
                 halign: center;
                 action-name: "win.add_ingredient";
