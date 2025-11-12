@@ -42,6 +42,9 @@ class Ingredient(Adw.ActionRow):
 
         self.frozen = False
 
+    def get_bb_date(self) -> Optional[datetime.datetime]:
+        return self.bb_date
+
     def get_bb_sort_date(self) -> datetime.datetime:
         return self.bb_date if self.bb_date else datetime.datetime.min
 

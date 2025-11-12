@@ -72,8 +72,15 @@ class Meal(Adw.SidebarItem):
         )
 
     def get_bb_date(self) -> Optional[datetime.datetime]:
-        # TODO: make functional
-        return None
+        # TODO: add caching?
+        ingredient_dates = set(map(
+            lambda x: x.get_bb_date(), self.ingredients
+        ))
+
+        if not ingredient_dates or None in ingredient_dates:
+            return None
+        else:
+            return min(ingredient_dates)
 
     def add_ingredient(self, ingredient: Ingredient) -> None:
         self.ingredients.insert_sorted(ingredient, compare_ingredients)
@@ -83,7 +90,7 @@ class Meal(Adw.SidebarItem):
         self.ingredients -= ingredient
 
     def __str__(self):
-        msg = self.get_title()
+        msg = f"{self.get_title()} (exp. {self.get_bb_date()})"
 
         if self.ingredients:
             for ingredient in self.ingredients:

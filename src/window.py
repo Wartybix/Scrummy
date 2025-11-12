@@ -22,6 +22,7 @@ from scrummy.ingredient import Ingredient
 from scrummy.new_meal_dialog import NewMealDialog
 from scrummy.new_ingredient_dialog import NewIngredientDialog
 from scrummy.meal import Meal
+from scrummy.sidebar_section_model import SidebarSectionModel
 from scrummy import PREFIX
 import datetime
 from typing import Optional
@@ -50,6 +51,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_meal_action = Gio.SimpleAction(name="add_meal")
         self.add_meal_action.connect("activate", self.add_meal_dialog)
         self.add_action(self.add_meal_action)
+
+        self.sidebar_section_model = SidebarSectionModel(self.sidebar)
 
         self.add_ingredient_action = Gio.SimpleAction(name="add_ingredient")
         self.add_ingredient_action.connect(
@@ -126,13 +129,15 @@ class ScrummyWindow(Adw.ApplicationWindow):
         def add_meal(name: str) -> None:
             meal = Meal(name, Gio.ListStore(), False)
 
-            undated_section = self.sidebar.get_section(1)
-            if undated_section is None or self.sidebar_section_get_bb_date(undated_section) is not None:
-                undated_section = Adw.SidebarSection()
-                undated_section.set_title(_('Undated'))
-                self.sidebar.insert(undated_section, 1)
+            self.sidebar_section_model.add_meal(meal)
 
-            undated_section.append(meal)
+            # undated_section = self.sidebar.get_section(1)
+            # if undated_section is None or self.sidebar_section_get_bb_date(undated_section) is not None:
+            #     undated_section = Adw.SidebarSection()
+            #     undated_section.set_title(_('Undated'))
+            #     self.sidebar.insert(undated_section, 1)
+
+            # undated_section.append(meal)
 
             print('------------')
             for meal in list(self.sidebar.get_items()):
@@ -149,8 +154,14 @@ class ScrummyWindow(Adw.ApplicationWindow):
         def add_ingredient(name: str, date: Optional[datetime.datetime]) -> None:
             ingredient = Ingredient(name, date)
             selected_item = self.sidebar.get_selected_item()
+
+            old_date = selected_item.get_bb_date()
+
             selected_item.add_ingredient(ingredient)
             self.set_main_page(False)
+
+            if selected_item != self.unsorted_food:
+                self.sidebar_section_model.update_meal_position(selected_item, old_date)
 
         dialog = NewIngredientDialog(add_ingredient)
         dialog.present(self)

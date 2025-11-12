@@ -56,7 +56,8 @@ scrummy_sources = [
   'ingredient.py',
   'new_meal_dialog.py',
   'new_ingredient_dialog.py',
-  'meal.py'
+  'meal.py',
+  'sidebar_section_model.py'
 ]
 
 install_data(scrummy_sources, install_dir: moduledir)
