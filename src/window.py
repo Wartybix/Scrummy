@@ -38,6 +38,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
     add_ingredient_btn = Gtk.Template.Child()
     ingredient_search_entry = Gtk.Template.Child()
     eat_btn = Gtk.Template.Child()
+    viewstack = Gtk.Template.Child()
+    search_bar = Gtk.Template.Child()
+    add_ingredient_action_bar = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -59,6 +62,12 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.unsorted_food.add_ingredient(IngredientRow('Rice', datetime.date(2027, 1, 1)))
 
         self.refresh_main_content()
+
+    def set_main_page(self, is_empty):
+        page_name = "empty-meal-page" if is_empty else "ingredients-page"
+        self.viewstack.set_visible_child_name(page_name)
+        self.search_bar.set_visible(not is_empty)
+        self.add_ingredient_action_bar.set_visible(not is_empty)
 
     def refresh_main_content(self):
         selected_item = self.sidebar.get_selected_item()
@@ -83,6 +92,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.main_nav_page.set_title(page_title)
 
         self.ingredients_list.bind_model(selected_item.ingredients, lambda x: x)
+
+        empty_meal = len(selected_item.ingredients) == 0
+        self.set_main_page(empty_meal)
 
         self.ingredient_search_entry.set_placeholder_text(ingredient_search_label)
         self.add_ingredient_btn.set_label(add_ingredient_btn_label)
@@ -132,6 +144,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
             ingredient = IngredientRow(name, date)
             selected_item = self.sidebar.get_selected_item()
             selected_item.add_ingredient(ingredient)
+            self.set_main_page(False)
 
         dialog = NewIngredientDialog(add_ingredient)
         dialog.present(self)

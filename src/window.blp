@@ -110,7 +110,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
         }
 
         [top]
-        SearchBar {
+        SearchBar search_bar {
           search-mode-enabled: true;
           [child]
           Adw.Clamp {
@@ -124,16 +124,38 @@ template $ScrummyWindow: Adw.ApplicationWindow {
           }
         }
 
-        content: Adw.PreferencesPage {
-          vexpand: true;
+        Adw.ViewStack viewstack {
+          Adw.ViewStackPage {
+            name: "empty-meal-page";
+            child: Adw.StatusPage {
+              title: _("Empty Meal");
+              icon-name: "restaurant-symbolic";
+              description: _("Add an ingredient to get started");
 
-          [child]
-          Adw.PreferencesGroup ingredients_list {
+              Button {
+                label: _("Add Ingredient…");
+                can-shrink: true;
+                halign: center;
+                action-name: "win.add_ingredient";
+
+                styles ["pill", "suggested-action"]
+              }
+            };
           }
-        };
+          Adw.ViewStackPage {
+            name: "ingredients-page";
+            child: Adw.PreferencesPage {
+              vexpand: true;
+
+              [child]
+              Adw.PreferencesGroup ingredients_list {
+              }
+            };
+          }
+        }
 
         [bottom]
-        ActionBar {
+        ActionBar add_ingredient_action_bar {
           [center]
           Button add_ingredient_btn {
             styles ["pill"]
