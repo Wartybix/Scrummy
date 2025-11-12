@@ -55,9 +55,12 @@ class Meal(Adw.SidebarItem):
     ):
         super().__init__(**kwargs)
 
-        self.set_title(name)
         self.ingredients = ingredients
         self.misc_meal = misc_meal
+        self.cached_bb_date = None
+        self.cache_outdated = True
+
+        self.set_title(name)
         self.update_subtitle()
 
     def update_subtitle(self) -> None:
@@ -72,22 +75,29 @@ class Meal(Adw.SidebarItem):
         )
 
     def get_bb_date(self) -> Optional[datetime.datetime]:
-        # TODO: add caching?
+        if not self.cache_outdated:
+            return self.cached_bb_date
+
         ingredient_dates = set(map(
             lambda x: x.get_bb_date(), self.ingredients
         ))
 
         if not ingredient_dates or None in ingredient_dates:
-            return None
+            self.cached_bb_date = None
         else:
-            return min(ingredient_dates)
+            self.cached_bb_date = min(ingredient_dates)
+
+        self.cache_outdated = False
+        return self.cached_bb_date
 
     def add_ingredient(self, ingredient: Ingredient) -> None:
         self.ingredients.insert_sorted(ingredient, compare_ingredients)
         self.update_subtitle()
+        self.cache_outdated = True
 
     def remove_ingredient(self, ingredient: Ingredient) -> None:
         self.ingredients -= ingredient
+        self.cache_outdated = True
 
     def __str__(self):
         msg = f"{self.get_title()} (exp. {self.get_bb_date()})"
