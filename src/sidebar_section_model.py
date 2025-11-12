@@ -77,3 +77,5 @@ class SidebarSectionModel():
         self.sections[old_date].remove(section_index)
 
         self.add_meal(meal)
+
+        self.sidebar.set_selected(meal.get_index())
