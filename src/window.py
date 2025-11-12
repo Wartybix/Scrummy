@@ -56,11 +56,6 @@ class ScrummyWindow(Adw.ApplicationWindow):
         )
         self.add_action(self.add_ingredient_action)
 
-        # Dummy UI elements -- TODO remove later
-        self.unsorted_food.add_ingredient(IngredientRow('Beans', datetime.date(2025, 11, 15)))
-        self.unsorted_food.add_ingredient(IngredientRow('Eggs', datetime.date(2025, 12, 15)))
-        self.unsorted_food.add_ingredient(IngredientRow('Rice', datetime.date(2027, 1, 1)))
-
         self.refresh_main_content()
 
     def set_main_page(self, is_empty):
