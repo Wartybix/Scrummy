@@ -17,12 +17,12 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from scrummy.ingredient_row import IngredientRow
+from scrummy.ingredient import Ingredient
 from typing import List, Optional
 from gettext import ngettext
 from gi.repository import Adw, Gtk, Gio
 
-def compare_ingredients(a: IngredientRow, b: IngredientRow):
+def compare_ingredients(a: Ingredient, b: Ingredient):
     a_bb_sort_date = a.get_bb_sort_date()
     b_bb_sort_date = b.get_bb_sort_date()
 

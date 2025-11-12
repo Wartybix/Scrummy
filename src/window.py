@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, GLib, Gio
-from scrummy.ingredient_row import IngredientRow
+from scrummy.ingredient import Ingredient
 from scrummy.new_meal_dialog import NewMealDialog
 from scrummy.new_ingredient_dialog import NewIngredientDialog
 from scrummy.meal import Meal
@@ -147,7 +147,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
         parameter: GLib.Variant
     ):
         def add_ingredient(name: str, date: Optional['datetime']):
-            ingredient = IngredientRow(name, date)
+            ingredient = Ingredient(name, date)
             selected_item = self.sidebar.get_selected_item()
             selected_item.add_ingredient(ingredient)
             self.set_main_page(False)

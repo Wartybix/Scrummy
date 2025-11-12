@@ -22,10 +22,10 @@ from scrummy import PREFIX
 from typing import Optional
 import datetime
 
-@Gtk.Template(resource_path=f"{PREFIX}/ingredient_row.ui")
-class IngredientRow(Adw.ActionRow):
+@Gtk.Template(resource_path=f"{PREFIX}/ingredient.ui")
+class Ingredient(Adw.ActionRow):
     """ An action row representing an ingredient / food item """
-    __gtype_name__ = "IngredientRow"
+    __gtype_name__ = "Ingredient"
 
     def __init__(self, title: str, bb_date: Optional['datetime'], **kwargs):
         super().__init__(**kwargs)

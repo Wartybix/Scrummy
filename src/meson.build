@@ -6,7 +6,7 @@ blueprints = custom_target('blueprints',
   input: files(
     'shortcuts-dialog.blp',
     'window.blp',
-    'ingredient_row.blp',
+    'ingredient.blp',
     'new_meal_dialog.blp',
     'new_ingredient_dialog.blp'
   ),
@@ -53,7 +53,7 @@ scrummy_sources = [
   ),
   'main.py',
   'window.py',
-  'ingredient_row.py',
+  'ingredient.py',
   'new_meal_dialog.py',
   'new_ingredient_dialog.py',
   'meal.py'
