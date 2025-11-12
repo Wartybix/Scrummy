@@ -21,8 +21,9 @@ from scrummy.ingredient import Ingredient
 from typing import List, Optional
 from gettext import ngettext
 from gi.repository import Adw, Gtk, Gio
+import datetime
 
-def compare_ingredients(a: Ingredient, b: Ingredient):
+def compare_ingredients(a: Ingredient, b: Ingredient) -> int:
     a_bb_sort_date = a.get_bb_sort_date()
     b_bb_sort_date = b.get_bb_sort_date()
 
@@ -48,7 +49,7 @@ class Meal(Adw.SidebarItem):
     def __init__(
         self,
         name: str="",
-        ingredients: 'GioListStore'=Gio.ListStore(),
+        ingredients: Gio.ListStore=Gio.ListStore(),
         misc_meal: bool=True,
         **kwargs
     ):
@@ -59,7 +60,7 @@ class Meal(Adw.SidebarItem):
         self.misc_meal = misc_meal
         self.update_subtitle()
 
-    def update_subtitle(self):
+    def update_subtitle(self) -> None:
         num_ingredients = len(self.ingredients)
         if self.misc_meal:
             subtitle = ngettext("{} Item", "{} Items", num_ingredients)
@@ -70,14 +71,15 @@ class Meal(Adw.SidebarItem):
             subtitle.format(num_ingredients)
         )
 
-    def get_bb_date(self) -> Optional['datetime']:
+    def get_bb_date(self) -> Optional[datetime.datetime]:
+        # TODO: make functional
         return None
 
-    def add_ingredient(self, ingredient: 'Ingredient'):
+    def add_ingredient(self, ingredient: Ingredient) -> None:
         self.ingredients.insert_sorted(ingredient, compare_ingredients)
         self.update_subtitle()
 
-    def remove_ingredient(self, ingredient: 'Ingredient'):
+    def remove_ingredient(self, ingredient: Ingredient) -> None:
         self.ingredients -= ingredient
 
     def __str__(self):

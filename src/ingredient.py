@@ -27,7 +27,7 @@ class Ingredient(Adw.ActionRow):
     """ An action row representing an ingredient / food item """
     __gtype_name__ = "Ingredient"
 
-    def __init__(self, title: str, bb_date: Optional['datetime'], **kwargs):
+    def __init__(self, title: str, bb_date: Optional[datetime.datetime], **kwargs):
         super().__init__(**kwargs)
 
         self.set_title(title)
@@ -42,7 +42,7 @@ class Ingredient(Adw.ActionRow):
 
         self.frozen = False
 
-    def get_bb_sort_date(self):
+    def get_bb_sort_date(self) -> datetime.datetime:
         return self.bb_date if self.bb_date else datetime.datetime.min
 
     def __str__(self):

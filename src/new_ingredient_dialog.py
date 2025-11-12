@@ -35,11 +35,11 @@ class NewIngredientDialog(Adw.Dialog):
         self.on_submit = on_submit
 
     @Gtk.Template.Callback()
-    def clear_date(self, widget):
+    def clear_date(self, widget: Gtk.Widget) -> None:
         self.date_row.set_text('');
 
     @Gtk.Template.Callback()
-    def submit(self, widget):
+    def submit(self, widget: Gtk.Widget) -> None:
         if self.name_row.get_text_length() == 0:
             return
 
@@ -54,5 +54,5 @@ class NewIngredientDialog(Adw.Dialog):
         self.close()
 
     @Gtk.Template.Callback()
-    def cancel(self, widget):
+    def cancel(self, widget: Gtk.Widget) -> None:
         self.close()

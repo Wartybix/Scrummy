@@ -34,7 +34,7 @@ class NewMealDialog(Adw.Dialog):
         self.on_submit = on_submit
 
     @Gtk.Template.Callback()
-    def submit(self, widget):
+    def submit(self, widget: Gtk.Widget) -> None:
         if self.entry_row.get_text_length() == 0:
             return
 

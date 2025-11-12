@@ -60,13 +60,13 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         self.refresh_main_content()
 
-    def set_main_page(self, is_empty):
+    def set_main_page(self, is_empty: bool) -> None:
         page_name = "empty-meal-page" if is_empty else "ingredients-page"
         self.viewstack.set_visible_child_name(page_name)
         self.search_bar.set_visible(not is_empty)
         self.add_ingredient_action_bar.set_visible(not is_empty)
 
-    def refresh_main_content(self):
+    def refresh_main_content(self) -> None:
         selected_item = self.sidebar.get_selected_item()
         page_title = selected_item.get_title()
 
@@ -112,18 +112,18 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.split_view.set_show_content(True);
 
     @Gtk.Template.Callback()
-    def on_sidebar_activated(self, index, user_data):
+    def on_sidebar_activated(self, index: int, user_data: any) -> None:
         self.refresh_main_content()
 
-    def sidebar_section_get_bb_date(self, sidebar_section) -> Optional['datetime']:
+    def sidebar_section_get_bb_date(self, sidebar_section: Adw.SidebarSection) -> Optional[datetime.datetime]:
         sample_item = sidebar_section.get_item(0)
         if not sample_item:
             return None
 
         return sample_item.get_bb_date()
 
-    def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant):
-        def add_meal(name: str):
+    def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
+        def add_meal(name: str) -> None:
             meal = Meal(name, Gio.ListStore(), False)
 
             undated_section = self.sidebar.get_section(1)
@@ -145,8 +145,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self,
         action: Gio.Action,
         parameter: GLib.Variant
-    ):
-        def add_ingredient(name: str, date: Optional['datetime']):
+    ) -> None:
+        def add_ingredient(name: str, date: Optional[datetime.datetime]) -> None:
             ingredient = Ingredient(name, date)
             selected_item = self.sidebar.get_selected_item()
             selected_item.add_ingredient(ingredient)
