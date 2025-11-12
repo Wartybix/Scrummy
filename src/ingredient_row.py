@@ -20,26 +20,30 @@
 from gi.repository import Adw, Gtk
 from scrummy import PREFIX
 from typing import Optional
+import datetime
 
 @Gtk.Template(resource_path=f"{PREFIX}/ingredient_row.ui")
 class IngredientRow(Adw.ActionRow):
     """ An action row representing an ingredient / food item """
     __gtype_name__ = "IngredientRow"
 
-    def __init__(self, title: str, date: Optional['date'], **kwargs):
+    def __init__(self, title: str, bb_date: Optional['datetime'], **kwargs):
         super().__init__(**kwargs)
 
         self.set_title(title)
-        self.date = date
+        self.bb_date = bb_date
 
         # TODO: change based on localisations
-        if date:
-            date_str = date.strftime("%d/%m/%Y")
+        if bb_date:
+            date_str = bb_date.strftime("%d/%m/%Y")
             self.set_subtitle(_("Use by {}").format(date_str))
         else:
             self.set_subtitle(_("Undated"))
 
         self.frozen = False
 
+    def get_bb_sort_date(self):
+        return self.bb_date if self.bb_date else datetime.datetime.min
+
     def __str__(self):
-        return f"{self.get_title()} (exp. {self.date}) -- {'un' if not self.frozen else ''}frozen"
+        return f"{self.get_title()} (exp. {self.bb_date}) -- {'un' if not self.frozen else ''}frozen"

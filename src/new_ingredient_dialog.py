@@ -46,11 +46,11 @@ class NewIngredientDialog(Adw.Dialog):
         name = self.name_row.get_text()
 
         try:
-            date = datetime.datetime.strptime(self.date_row.get_text(), ('%d/%m/%Y'))
+            bb_date = datetime.datetime.strptime(self.date_row.get_text(), ('%d/%m/%Y'))
         except ValueError:
-            date = None
+            bb_date = None
 
-        self.on_submit(name, date)
+        self.on_submit(name, bb_date)
         self.close()
 
     @Gtk.Template.Callback()

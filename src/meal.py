@@ -22,6 +22,25 @@ from typing import List, Optional
 from gettext import ngettext
 from gi.repository import Adw, Gtk, Gio
 
+def compare_ingredients(a: IngredientRow, b: IngredientRow):
+    a_bb_sort_date = a.get_bb_sort_date()
+    b_bb_sort_date = b.get_bb_sort_date()
+
+    if a_bb_sort_date < b_bb_sort_date:
+        return -1
+    elif a_bb_sort_date == b_bb_sort_date:
+        a_title = a.get_title()
+        b_title = b.get_title()
+
+        if a_title < b_title:
+            return -1
+        elif a_title == b_title:
+            return 0
+        else:
+            return 1
+    else:
+        return 1
+
 class Meal(Adw.SidebarItem):
     """ Sidebar item representing a meal """
     __gtype_name__ = "Meal"
@@ -55,7 +74,7 @@ class Meal(Adw.SidebarItem):
         return None
 
     def add_ingredient(self, ingredient: 'Ingredient'):
-        self.ingredients.append(ingredient)
+        self.ingredients.insert_sorted(ingredient, compare_ingredients)
         self.update_subtitle()
 
     def remove_ingredient(self, ingredient: 'Ingredient'):
