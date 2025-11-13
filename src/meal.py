@@ -20,7 +20,7 @@
 from scrummy.ingredient import Ingredient
 from typing import List, Optional
 from gettext import ngettext
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk, Gio, Gdk
 import datetime
 
 def compare_ingredients(a: Ingredient, b: Ingredient) -> int:
@@ -49,6 +49,7 @@ class Meal(Adw.SidebarItem):
     def __init__(
         self,
         name: str="",
+        icon: Optional[Gdk.Paintable]=None,
         ingredients: Gio.ListStore=Gio.ListStore(),
         misc_meal: bool=True,
         **kwargs
@@ -60,8 +61,14 @@ class Meal(Adw.SidebarItem):
         self.cached_bb_date = None
         self.cache_outdated = True
 
-        self.set_title(name)
+        self.set_name(name, icon)
         self.update_subtitle()
+
+    def set_name(self, name: str, icon: Optional[Gdk.Paintable]) -> None:
+        self.set_title(name)
+
+        if icon:
+            self.set_icon_paintable(icon)
 
     def update_subtitle(self) -> None:
         num_ingredients = len(self.ingredients)

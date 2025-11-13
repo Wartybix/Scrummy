@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, GLib, Gio
+from gi.repository import Adw, Gtk, GLib, Gio, Gdk
 from scrummy.ingredient import Ingredient
 from scrummy.new_meal_dialog import NewMealDialog
 from scrummy.new_ingredient_dialog import NewIngredientDialog
@@ -145,8 +145,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         return sample_item.get_bb_date()
 
     def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
-        def add_meal(name: str) -> None:
-            meal = Meal(name, Gio.ListStore(), False)
+        def add_meal(name: str, icon: Gdk.Paintable) -> None:
+            meal = Meal(name, icon, Gio.ListStore(), False)
 
             self.sidebar_section_model.add_meal(meal)
 
