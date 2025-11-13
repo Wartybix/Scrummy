@@ -17,155 +17,158 @@ template $ScrummyWindow: Adw.ApplicationWindow {
     }
   }
 
-  content: Adw.NavigationSplitView split_view {
-    min-sidebar-width: 220;
+  content: Adw.ToastOverlay toast_overlay {
+    child: Adw.NavigationSplitView split_view {
+      min-sidebar-width: 220;
 
-    [sidebar]
-    Adw.NavigationPage {
-      title: _("Meals");
+      [sidebar]
+      Adw.NavigationPage {
+        title: _("Meals");
 
-      Adw.ToolbarView {
-        [top]
-        Adw.HeaderBar {
-          [start]
-          ToggleButton search_btn {
-            icon-name: "edit-find-symbolic";
-            tooltip-text: _("Search");
+        Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            [start]
+            ToggleButton search_btn {
+              icon-name: "edit-find-symbolic";
+              tooltip-text: _("Search");
+            }
+
+            [end]
+            MenuButton {
+              primary: true;
+              icon-name: "open-menu-symbolic";
+              tooltip-text: _("Main Menu");
+              menu-model: primary_menu;
+            }
           }
 
-          [end]
-          MenuButton {
-            primary: true;
-            icon-name: "open-menu-symbolic";
-            tooltip-text: _("Main Menu");
-            menu-model: primary_menu;
+          [top]
+          SearchBar {
+            search-mode-enabled: bind search_btn.active bidirectional;
+            key-capture-widget: template;
+
+            child: SearchEntry search_entry {
+              placeholder-text: _("Search meals");
+              hexpand: true;
+            };
           }
-        }
 
-        [top]
-        SearchBar {
-          search-mode-enabled: bind search_btn.active bidirectional;
-          key-capture-widget: template;
+          Adw.Sidebar sidebar {
+            activated => $on_sidebar_activated();
+            selected: 0;
 
-          child: SearchEntry search_entry {
-            placeholder-text: _("Search meals");
-            hexpand: true;
-          };
-        }
+            filter: StringFilter {
+              expression: expr item as <Adw.SidebarItem>.title;
+              search: bind search_entry.text;
+            };
 
-        Adw.Sidebar sidebar {
-          activated => $on_sidebar_activated();
-          selected: 0;
+            placeholder: Adw.StatusPage {
+              icon-name: "edit-find-symbolic";
+              title: _("No Results Found");
+              description: _("Try a different search");
+            };
 
-          filter: StringFilter {
-            expression: expr item as <Adw.SidebarItem>.title;
-            search: bind search_entry.text;
-          };
+            Adw.SidebarSection {
+              $Meal unsorted_food {
+                title: _("_Unsorted Food");
+                use-underline: true;
+                icon-name: "refrigerator-symbolic";
+              }
+            }
+          }
 
-          placeholder: Adw.StatusPage {
-            icon-name: "edit-find-symbolic";
-            title: _("No Results Found");
-            description: _("Try a different search");
-          };
+          [bottom]
+          ActionBar {
+            [center]
+            Button {
+              styles ["pill"]
 
-          Adw.SidebarSection {
-            $Meal unsorted_food {
-              title: _("_Unsorted Food");
+              margin-top: 6;
+              margin-bottom: 6;
+
+              label: _("Add _Meal…");
               use-underline: true;
-              icon-name: "refrigerator-symbolic";
+
+              action-name: "win.add_meal";
             }
           }
         }
-
-        [bottom]
-        ActionBar {
-          [center]
-          Button {
-            styles ["pill"]
-
-            margin-top: 6;
-            margin-bottom: 6;
-
-            label: _("Add _Meal…");
-            use-underline: true;
-
-            action-name: "win.add_meal";
-          }
-        }
       }
-    }
 
-    [content]
-    Adw.NavigationPage main_nav_page {
-      title: "Yummy Dinner";
+      [content]
+      Adw.NavigationPage main_nav_page {
+        title: "Yummy Dinner";
 
-      Adw.ToolbarView {
-        [top]
-        Adw.HeaderBar {
-          [end]
-          Adw.SplitButton eat_btn {
-            label: _("Mark Eaten");
-            menu-model: meal_menu;
+        Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            [end]
+            Adw.SplitButton eat_btn {
+              label: _("Mark Eaten");
+              menu-model: meal_menu;
+              action-name: "win.eat_meal";
+            }
           }
-        }
 
-        [top]
-        SearchBar search_bar {
-          search-mode-enabled: true;
-          [child]
-          Adw.Clamp {
-            maximum-size: 400;
-            hexpand: true;
-            margin-start: 6;
-            margin-end: 6;
-
+          [top]
+          SearchBar search_bar {
+            search-mode-enabled: true;
             [child]
-            SearchEntry ingredient_search_entry {}
-          }
-        }
-
-        Adw.ViewStack viewstack {
-          Adw.ViewStackPage {
-            name: "empty-meal-page";
-            child: Adw.StatusPage empty_status_page {
-              icon-name: "restaurant-symbolic";
-
-              Button add_ingredient_btn_empty {
-                use-underline: true;
-                can-shrink: true;
-                halign: center;
-                action-name: "win.add_ingredient";
-
-                styles ["pill", "suggested-action"]
-              }
-            };
-          }
-          Adw.ViewStackPage {
-            name: "ingredients-page";
-            child: Adw.PreferencesPage {
-              vexpand: true;
+            Adw.Clamp {
+              maximum-size: 400;
+              hexpand: true;
+              margin-start: 6;
+              margin-end: 6;
 
               [child]
-              Adw.PreferencesGroup ingredients_list {
-              }
-            };
+              SearchEntry ingredient_search_entry {}
+            }
           }
-        }
 
-        [bottom]
-        ActionBar add_ingredient_action_bar {
-          [center]
-          Button add_ingredient_btn {
-            styles ["pill"]
+          Adw.ViewStack viewstack {
+            Adw.ViewStackPage {
+              name: "empty-meal-page";
+              child: Adw.StatusPage empty_status_page {
+                icon-name: "restaurant-symbolic";
 
-            margin-top: 6;
-            margin-bottom: 6;
-            use-underline: true;
-            action-name: "win.add_ingredient";
+                Button add_ingredient_btn_empty {
+                  use-underline: true;
+                  can-shrink: true;
+                  halign: center;
+                  action-name: "win.add_ingredient";
+
+                  styles ["pill", "suggested-action"]
+                }
+              };
+            }
+            Adw.ViewStackPage {
+              name: "ingredients-page";
+              child: Adw.PreferencesPage {
+                vexpand: true;
+
+                [child]
+                Adw.PreferencesGroup ingredients_list {
+                }
+              };
+            }
+          }
+
+          [bottom]
+          ActionBar add_ingredient_action_bar {
+            [center]
+            Button add_ingredient_btn {
+              styles ["pill"]
+
+              margin-top: 6;
+              margin-bottom: 6;
+              use-underline: true;
+              action-name: "win.add_ingredient";
+            }
           }
         }
       }
-    }
+    };
   };
 }
 

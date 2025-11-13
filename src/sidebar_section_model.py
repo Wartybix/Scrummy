@@ -72,6 +72,8 @@ class SidebarSectionModel():
 
         self.sections[bb_date].remove(section_index)
 
+        self.sidebar.set_selected(0)
+
     def update_meal_position(self, meal: Meal, old_date: datetime.datetime) -> None:
         section_index = meal.get_section_index()
         self.sections[old_date].remove(section_index)

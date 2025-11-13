@@ -44,6 +44,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     search_bar = Gtk.Template.Child()
     add_ingredient_action_bar = Gtk.Template.Child()
     empty_status_page = Gtk.Template.Child()
+    toast_overlay = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -51,6 +52,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_meal_action = Gio.SimpleAction(name="add_meal")
         self.add_meal_action.connect("activate", self.add_meal_dialog)
         self.add_action(self.add_meal_action)
+
+        self.eat_meal_action = Gio.SimpleAction(name="eat_meal")
+        self.eat_meal_action.connect("activate", self.eat_meal)
+        self.add_action(self.eat_meal_action)
 
         self.sidebar_section_model = SidebarSectionModel(self.sidebar)
 
@@ -62,6 +67,19 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_action(self.add_ingredient_action)
 
         self.refresh_main_content()
+
+    def eat_meal(self, action: Gio.Action, paramter: GLib.Variant) -> None:
+        # TODO: fix cases where sidebar selected desynced from main view
+        selected_item = self.sidebar.get_selected_item()
+        self.sidebar_section_model.remove_meal(selected_item)
+        self.refresh_main_content()
+
+        toast = Adw.Toast.new(
+            # TRANSLATORS: {} represents a name of a meal.
+            _("“{}” marked as eaten").format(selected_item.get_title())
+        )
+        toast.set_button_label(_("Undo")) # TODO: make this button do something
+        self.toast_overlay.add_toast(toast)
 
     def set_main_page(self, is_empty: bool) -> None:
         page_name = "empty-meal-page" if is_empty else "ingredients-page"
@@ -116,6 +134,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def on_sidebar_activated(self, index: int, user_data: any) -> None:
+        print("sidebar activated")
         self.refresh_main_content()
 
     def sidebar_section_get_bb_date(self, sidebar_section: Adw.SidebarSection) -> Optional[datetime.datetime]:
