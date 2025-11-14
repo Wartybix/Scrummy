@@ -16,6 +16,14 @@ template $NewMealDialog: Adw.Dialog {
           title: _("Meal _Name");
           use-underline: true;
           entry-activated => $submit();
+
+          [prefix]
+          Adw.Avatar {
+            size: 24;
+            show-initials: true;
+            icon-name: "restaurant-symbolic";
+            text: bind entry_row.text;
+          }
         }
 
         Button button {

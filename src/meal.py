@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from scrummy.ingredient import Ingredient
+from scrummy import PREFIX
 from typing import List, Optional
 from gettext import ngettext
 from gi.repository import Adw, Gtk, Gio
@@ -60,8 +61,18 @@ class Meal(Adw.SidebarItem):
         self.cached_bb_date = None
         self.cache_outdated = True
 
+        self.avatar = Adw.Avatar.new(16, name, True)
+        self.avatar.set_icon_name("restaurant-symbolic")
+
+        if not misc_meal:
+            self.set_prefix(self.avatar)
+
         self.set_title(name)
         self.update_subtitle()
+
+    def set_title(self, name) -> None:
+        super().set_title(name)
+        self.avatar.set_text(name)
 
     def update_subtitle(self) -> None:
         num_ingredients = len(self.ingredients)
