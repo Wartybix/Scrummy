@@ -57,6 +57,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.eat_meal_action.connect("activate", self.eat_meal)
         self.add_action(self.eat_meal_action)
 
+        self.duplicate_meal_action = Gio.SimpleAction(name="duplicate_meal")
+        self.duplicate_meal_action.connect("activate", self.duplicate_meal)
+        self.add_action(self.duplicate_meal_action)
+
         self.sidebar_section_model = SidebarSectionModel(self.sidebar)
 
         self.add_ingredient_action = Gio.SimpleAction(name="add_ingredient")
@@ -68,7 +72,32 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         self.refresh_main_content()
 
-    def eat_meal(self, action: Gio.Action, paramter: GLib.Variant) -> None:
+    def duplicate_meal(
+        self,
+        action: Gio.Action,
+        parameter: GLib.Variant
+    ) -> None:
+        selected_meal = self.sidebar.get_selected_item()
+        new_meal = Meal(selected_meal.get_title(), Gio.ListStore(), False)
+        new_ingredients = []
+
+        i = 0
+        while ingredient := selected_meal.ingredients.get_item(i):
+            new_ingredients.append(ingredient.copy())
+            i += 1
+
+        new_meal.ingredients.splice(0, 0, new_ingredients)
+        new_meal.update_subtitle()
+
+        self.sidebar_section_model.add_meal(new_meal)
+
+        toast = Adw.Toast.new(
+            # TRANSLATORS: {} represents a name of a meal.
+            _('‘{}’ duplicated').format(new_meal.get_title())
+        )
+        self.toast_overlay.add_toast(toast)
+
+    def eat_meal(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         # TODO: fix cases where sidebar selected desynced from main view
         selected_item = self.sidebar.get_selected_item()
         self.sidebar_section_model.remove_meal(selected_item)
@@ -76,7 +105,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         toast = Adw.Toast.new(
             # TRANSLATORS: {} represents a name of a meal.
-            _("“{}” marked as eaten").format(selected_item.get_title())
+            _("‘{}’ marked as eaten").format(selected_item.get_title())
         )
         toast.set_button_label(_("Undo")) # TODO: make this button do something
         self.toast_overlay.add_toast(toast)

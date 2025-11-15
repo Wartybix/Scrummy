@@ -56,6 +56,8 @@ class Meal(Adw.SidebarItem):
     ):
         super().__init__(**kwargs)
 
+        # TODO: simplify ingredients parameter?
+
         self.ingredients = ingredients
         self.misc_meal = misc_meal
         self.cached_bb_date = None

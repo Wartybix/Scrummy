@@ -48,5 +48,8 @@ class Ingredient(Adw.ActionRow):
     def get_bb_sort_date(self) -> datetime.datetime:
         return self.bb_date if self.bb_date else datetime.datetime.min
 
+    def copy(self) -> 'Ingredient':
+        return Ingredient(self.get_title(), self.bb_date)
+
     def __str__(self):
         return f"{self.get_title()} (exp. {self.bb_date}) -- {'un' if not self.frozen else ''}frozen"
