@@ -87,20 +87,20 @@ class Meal(Adw.SidebarItem):
             circle = path_builder.to_path()
 
             colors = [
-               "#337fdc", # blue
-               "#0f9ac8", # cyan
-               "#29ae74", # green
-               "#6ab85b", # lime
-               "#d29d09", # yellow
-               "#d68400", # gold
-               "#ed5b00", # orange
-               "#e62d42", # raspberry
-               "#e33b6a", # magenta
-               "#9945b5", # purple
-               "#7a59ca", # violet
-               "#b08952", # beige
-               "#785336", # brown
-               "#6e6d71", # gray
+               "#1c71d8", # blue
+               "#62A0EA", # cyan
+               "#26A269", # green
+               "#57E389", # lime
+               "#E5A50A", # yellow
+               "#FFA348", # gold
+               "#E66100", # orange
+               "#ED333B", # raspberry
+               "#C061CB", # magenta
+               "#9141AC", # purple
+               "#613583", # violet
+               "#B5835A", # beige
+               "#63452C", # brown
+               "#77767B", # gray
             ]
 
             rgba = Gdk.RGBA()
