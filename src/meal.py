@@ -21,8 +21,9 @@ from scrummy.ingredient import Ingredient
 from scrummy import PREFIX
 from typing import List, Optional
 from gettext import ngettext
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk, Gio, Gsk, Graphene, Gdk
 import datetime
+from ctypes import c_uint32
 
 def compare_ingredients(a: Ingredient, b: Ingredient) -> int:
     a_bb_sort_date = a.get_bb_sort_date()
@@ -42,6 +43,16 @@ def compare_ingredients(a: Ingredient, b: Ingredient) -> int:
             return 1
     else:
         return 1
+
+# Function taken from:
+# https://mojoauth.com/hashing/bernsteins-hash-djb2-in-python/
+# with some modifications
+def djb2_hash(string):
+    hash_value = 5381  # Initial hash value
+    for char in string:  # Iterate through each character
+        hash_value = (hash_value << 5) + hash_value + ord(char)  # Update hash value
+        hash_value = c_uint32(hash_value).value # Keep limited to 32 bit unsigned integer
+    return hash_value  # Return final hash value
 
 class Meal(Adw.SidebarItem):
     """ Sidebar item representing a meal """
@@ -63,18 +74,48 @@ class Meal(Adw.SidebarItem):
         self.cached_bb_date = None
         self.cache_outdated = True
 
-        self.avatar = Adw.Avatar.new(16, name, True)
-        self.avatar.set_icon_name("restaurant-symbolic")
-
-        if not misc_meal:
-            self.set_prefix(self.avatar)
-
         self.set_title(name)
         self.update_subtitle()
 
     def set_title(self, name) -> None:
         super().set_title(name)
-        self.avatar.set_text(name)
+
+        if not self.misc_meal:
+            snapshot = Gtk.Snapshot()
+
+            path_builder = Gsk.PathBuilder.new()
+            path_builder.add_circle(Graphene.Point().init(1.0, 1.0), 1.0)
+
+            circle = path_builder.to_path()
+
+            colors = [
+               "#337fdc", # blue
+               "#0f9ac8", # cyan
+               "#29ae74", # green
+               "#6ab85b", # lime
+               "#d29d09", # yellow
+               "#d68400", # gold
+               "#ed5b00", # orange
+               "#e62d42", # raspberry
+               "#e33b6a", # magenta
+               "#9945b5", # purple
+               "#7a59ca", # violet
+               "#b08952", # beige
+               "#785336", # brown
+               "#6e6d71", # gray
+            ]
+
+            rgba = Gdk.RGBA()
+
+            color_class = djb2_hash(name) % len(colors)
+
+            rgba.parse(colors[color_class])
+
+            snapshot.append_fill(circle, Gsk.FillRule.WINDING, rgba)
+
+            paintable = snapshot.to_paintable()
+
+            self.set_icon_paintable(paintable)
 
     def update_subtitle(self) -> None:
         num_ingredients = len(self.ingredients)
