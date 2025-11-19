@@ -61,6 +61,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.duplicate_meal_action.connect("activate", self.duplicate_meal)
         self.add_action(self.duplicate_meal_action)
 
+        self.rename_meal_action = Gio.SimpleAction(name="rename_meal")
+        self.rename_meal_action.connect("activate", self.rename_meal)
+        self.add_action(self.rename_meal_action)
+
         self.sidebar_section_model = SidebarSectionModel(self.sidebar)
 
         self.add_ingredient_action = Gio.SimpleAction(name="add_ingredient")
@@ -71,6 +75,23 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_action(self.add_ingredient_action)
 
         self.refresh_main_content()
+
+    def rename_meal(self, action: Gio.Action, parameter: GLib.Variant) -> None:
+        selected_meal = self.sidebar.get_selected_item()
+
+        def do_rename(new_name):
+            selected_meal.set_title(new_name)
+            self.sidebar_section_model.update_meal_position(
+                selected_meal,
+                selected_meal.get_bb_date()
+            )
+            self.main_nav_page.set_title(new_name)
+
+        dialog = NewMealDialog(
+            do_rename,
+            selected_meal.get_title()
+        )
+        dialog.present(self)
 
     def duplicate_meal(
         self,

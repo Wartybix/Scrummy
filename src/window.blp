@@ -98,8 +98,6 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
       [content]
       Adw.NavigationPage main_nav_page {
-        title: "Yummy Dinner";
-
         Adw.ToolbarView {
           [top]
           Adw.HeaderBar {
@@ -182,6 +180,7 @@ menu meal_menu {
   section {
     item {
       label: _("Rename…");
+      action: "win.rename_meal";
     }
     item {
       label: _("Delete…");

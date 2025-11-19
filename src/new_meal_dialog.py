@@ -28,10 +28,21 @@ class NewMealDialog(Adw.Dialog):
 
     entry_row = Gtk.Template.Child()
 
-    def __init__(self, on_submit: Callable[[Gtk.Widget, str], None], **kwargs):
+    def __init__(
+        self,
+        on_submit: Callable[[Gtk.Widget, str], None],
+        existing_text: str=None,
+        **kwargs
+    ):
         super().__init__(**kwargs)
 
         self.on_submit = on_submit
+
+        self.set_title(_("Rename Meal") if existing_text else _("New Meal"))
+
+        if existing_text:
+            self.entry_row.set_text(existing_text)
+            self.entry_row.select_region(0, -1)
 
     @Gtk.Template.Callback()
     def submit(self, widget: Gtk.Widget) -> None:
