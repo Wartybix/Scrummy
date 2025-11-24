@@ -65,6 +65,20 @@
                             "branch" : "meson"
                         }
                     ]
+                },
+                {
+                    "name" : "gtk",
+                    "buildsystem" : "meson",
+                    "cleanup" : [
+                        "*"
+                    ],
+                    "sources" : [
+                        {
+                            "type" : "git",
+                            "url" : "https://gitlab.gnome.org/GNOME/gtk.git",
+                            "branch" : "main"
+                        }
+                    ]
                 }
             ]
         },
