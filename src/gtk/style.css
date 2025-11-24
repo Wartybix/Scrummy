@@ -8,3 +8,84 @@
 .drag-handle:backdrop {
   color: color-mix(in srgb, var(--window-fg-color) 40%, transparent);
 }
+
+/* A lot of the styling for the GtkCalendar widget is taken from GNOME Calendar.
+https://gitlab.gnome.org/GNOME/gnome-calendar/-/blob/4d2cd89c4997ad0abae8937cc21157ff7c987b51/src/theme/style.css
+However it is still not a perfect replica as they are totally different
+widget(s). This will all be removed when there's an official Libadwaita calendar
+widget at some point. At least this is a bit less cramped than with the default
+GTK style for now.
+*/
+
+
+:root {
+  --insensitive-fg-color: color-mix(in srgb, var(--window-fg-color) 50%, transparent);
+}
+
+calendar {
+  background: none;
+  border: none;
+}
+
+calendar header {
+  /* add some space between the two controls */
+  margin-right: 6px;
+  margin-left: 6px;
+  margin-bottom: 6px;
+
+  outline: 0 solid transparent;
+  border-radius: 9px;
+  outline-offset: 6px;
+  transition: var(--focus-ring-transition);
+
+  border: none;
+}
+
+calendar header label {
+  font-weight: bold;
+}
+
+calendar header button {
+  /* Libadwaita circular style */
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 9999px;
+}
+
+calendar .day-name {
+  color: var(--insensitive-fg-color);
+  font-size: smaller;
+  font-weight: bold;
+}
+
+
+calendar .day-number {
+  font-size: 10pt;
+  font-weight: normal;
+  min-height: 26px;
+  min-width: 26px;
+  margin: 2px;
+  padding: 3px;
+  transition: none;
+}
+
+calendar .day-number:selected {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-fg-color);
+  font-weight: bold;
+}
+
+calendar .today {
+  color: var(--accent-color);
+
+}
+
+calendar .today:selected {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-fg-color);
+}
+
+calendar .other-month:backdrop {
+  color: rgb(from currentColor r g b / 50%);
+}

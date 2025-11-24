@@ -53,15 +53,21 @@ template $NewIngredientDialog: Adw.Dialog {
             valign: center;
 
             popover: Popover {
-              margin-top: 12;
-              margin-end: 12;
-              margin-bottom: 12;
-              margin-start: 12;
+              Box {
+                orientation: vertical;
+                spacing: 8;
+                margin-bottom: 8;
 
-              Button {
-                label: _("_Remove Date");
-                use-underline: true;
-                clicked => $clear_date();
+                Calendar {
+                  // TODO: switch to Libadwaita widget when it releases
+                }
+
+                Button {
+                  label: _("_Remove Date");
+                  use-underline: true;
+                  clicked => $clear_date();
+                  halign: center;
+                }
               }
             };
 
