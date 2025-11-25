@@ -19,7 +19,6 @@
 
 from gi.repository import Adw, Gtk, GLib
 from typing import Callable
-import datetime
 from scrummy import PREFIX
 
 @Gtk.Template(resource_path=f"{PREFIX}/new_ingredient_dialog.ui")
@@ -30,7 +29,11 @@ class NewIngredientDialog(Adw.Dialog):
     name_row = Gtk.Template.Child()
     date_row = Gtk.Template.Child()
 
-    def __init__(self, on_submit: Callable[[Gtk.Widget, str, 'datetime'], None], **kwargs):
+    def __init__(
+        self,
+        on_submit: Callable[[Gtk.Widget, str, GLib.DateTime], None],
+        **kwargs
+    ):
         super().__init__(**kwargs)
         self.on_submit = on_submit
 
@@ -45,9 +48,19 @@ class NewIngredientDialog(Adw.Dialog):
 
         name = self.name_row.get_text()
 
-        try:
-            bb_date = datetime.datetime.strptime(self.date_row.get_text(), ('%d/%m/%Y'))
-        except ValueError:
+        parsed_date = GLib.Date.new()
+        parsed_date.set_parse(self.date_row.get_text())
+
+        if parsed_date.valid():
+            bb_date = GLib.DateTime.new_local(
+                parsed_date.get_year(),
+                parsed_date.get_month(),
+                parsed_date.get_day(),
+                0,
+                0,
+                0.0
+            )
+        else:
             bb_date = None
 
         self.on_submit(name, bb_date)

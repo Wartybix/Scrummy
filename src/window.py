@@ -24,7 +24,6 @@ from scrummy.new_ingredient_dialog import NewIngredientDialog
 from scrummy.meal import Meal
 from scrummy.sidebar_section_model import SidebarSectionModel
 from scrummy import PREFIX
-import datetime
 from typing import Optional
 
 @Gtk.Template(resource_path=f'{PREFIX}/window.ui')
@@ -187,26 +186,11 @@ class ScrummyWindow(Adw.ApplicationWindow):
         print("sidebar activated")
         self.refresh_main_content()
 
-    def sidebar_section_get_bb_date(self, sidebar_section: Adw.SidebarSection) -> Optional[datetime.datetime]:
-        sample_item = sidebar_section.get_item(0)
-        if not sample_item:
-            return None
-
-        return sample_item.get_bb_date()
-
     def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         def add_meal(name: str) -> None:
             meal = Meal(name, Gio.ListStore(), False)
 
             self.sidebar_section_model.add_meal(meal)
-
-            # undated_section = self.sidebar.get_section(1)
-            # if undated_section is None or self.sidebar_section_get_bb_date(undated_section) is not None:
-            #     undated_section = Adw.SidebarSection()
-            #     undated_section.set_title(_('Undated'))
-            #     self.sidebar.insert(undated_section, 1)
-
-            # undated_section.append(meal)
 
             print('------------')
             for meal in list(self.sidebar.get_items()):
@@ -220,7 +204,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
         action: Gio.Action,
         parameter: GLib.Variant
     ) -> None:
-        def add_ingredient(name: str, date: Optional[datetime.datetime]) -> None:
+        def add_ingredient(name: str, date: Optional[GLib.DateTime]) -> None:
             ingredient = Ingredient(name, date)
             selected_item = self.sidebar.get_selected_item()
 

@@ -21,17 +21,16 @@ from scrummy.ingredient import Ingredient
 from scrummy import PREFIX
 from typing import List, Optional
 from gettext import ngettext
-from gi.repository import Adw, Gtk, Gio, Gsk, Graphene, Gdk
-import datetime
+from gi.repository import Adw, Gtk, Gio, Gsk, Graphene, Gdk, GLib
 from ctypes import c_uint32
 
 def compare_ingredients(a: Ingredient, b: Ingredient) -> int:
     a_bb_sort_date = a.get_bb_sort_date()
     b_bb_sort_date = b.get_bb_sort_date()
 
-    if a_bb_sort_date < b_bb_sort_date:
-        return -1
-    elif a_bb_sort_date == b_bb_sort_date:
+    comparison = a_bb_sort_date.compare(b_bb_sort_date)
+
+    if comparison == 0:
         a_title = a.get_title()
         b_title = b.get_title()
 
@@ -42,7 +41,7 @@ def compare_ingredients(a: Ingredient, b: Ingredient) -> int:
         else:
             return 1
     else:
-        return 1
+        return comparison
 
 # Function taken from:
 # https://mojoauth.com/hashing/bernsteins-hash-djb2-in-python/
@@ -128,7 +127,7 @@ class Meal(Adw.SidebarItem):
             subtitle.format(num_ingredients)
         )
 
-    def get_bb_date(self) -> Optional[datetime.datetime]:
+    def get_bb_date(self) -> Optional[GLib.DateTime]:
         if not self.cache_outdated:
             return self.cached_bb_date
 
@@ -139,7 +138,8 @@ class Meal(Adw.SidebarItem):
         if not ingredient_dates or None in ingredient_dates:
             self.cached_bb_date = None
         else:
-            self.cached_bb_date = min(ingredient_dates)
+            min_unix = min(set(map(lambda x: x.to_unix(), ingredient_dates)))
+            self.cached_bb_date = GLib.DateTime.new_from_unix_local(min_unix)
 
         self.cache_outdated = False
         return self.cached_bb_date
@@ -154,7 +154,11 @@ class Meal(Adw.SidebarItem):
         self.cache_outdated = True
 
     def __str__(self):
-        msg = f"{self.get_title()} (exp. {self.get_bb_date()})"
+        bb_date = self.get_bb_date()
+
+        bb_msg = f"exp. {bb_date.format('%x')}" if bb_date else "undated"
+
+        msg = f"{self.get_title()} ({bb_msg})"
 
         if self.ingredients:
             for ingredient in self.ingredients:
