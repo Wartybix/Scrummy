@@ -40,6 +40,14 @@ def popup(menu_button: Gtk.MenuButton, user_data: any=None) -> None:
     dialog.set_date_entry(parsed_date)
     dialog.calendar.set_date(parsed_date)
 
+class RubberBandAmount:
+    MONTH = 0
+    YEAR = 1
+
+class RubberBandDirection:
+    BACKWARDS = 0
+    FORWARDS = 1
+
 @Gtk.Template(resource_path=f"{PREFIX}/new_ingredient_dialog.ui")
 class NewIngredientDialog(Adw.Dialog):
     """ An action row representing an ingredient / food item """
@@ -68,8 +76,21 @@ class NewIngredientDialog(Adw.Dialog):
         parsed_date.set_parse(self.date_row.get_text())
 
         if parsed_date.valid():
+            current_year = GLib.DateTime.new_now_local().get_year()
+            entered_year = parsed_date.get_year()
+
+            entry_remainder = entered_year % 100
+
+            range_end = current_year + 50
+
+            century_remainder = range_end % 100
+            carry = 0 if entry_remainder < century_remainder else 1
+            century = (range_end // 100 - carry) * 100
+
+            corrected_year = century + entry_remainder
+
             return GLib.DateTime.new_local(
-                parsed_date.get_year(),
+                corrected_year,
                 parsed_date.get_month(),
                 parsed_date.get_day(),
                 0,
@@ -78,8 +99,6 @@ class NewIngredientDialog(Adw.Dialog):
             )
         else:
             return default_date()
-
-    # TODO: convert '25' -> '2025' etc.
 
     def set_date_entry(self, date: GLib.DateTime) -> None:
         self.date_row.set_text(date.format('%x'))
@@ -99,6 +118,65 @@ class NewIngredientDialog(Adw.Dialog):
         date = self.calendar.get_date()
 
         self.set_date_entry(date)
+
+    def rubberband_calendar(
+        self,
+        amount: RubberBandAmount,
+        direction: RubberBandDirection
+    ):
+        selected_date = self.calendar.get_date()
+        selected_year = selected_date.get_year()
+
+        delta = 50 * (1 if direction == RubberBandDirection.BACKWARDS else -1)
+        year_bound = GLib.DateTime.new_now_local().get_year() + delta
+
+        if amount == RubberBandAmount.MONTH:
+            add_function = selected_date.add_months
+        else:
+            add_function = selected_date.add_years
+
+        corrected_date = None
+
+        if direction == RubberBandDirection.BACKWARDS:
+            if selected_year >= year_bound:
+                corrected_date = add_function(-1)
+        else:
+            if selected_year < year_bound:
+                corrected_date = add_function(1)
+
+        if not corrected_date:
+            self.set_date_entry(selected_date)
+            return
+
+        self.calendar.set_date(corrected_date)
+
+    @Gtk.Template.Callback()
+    def calendar_next_month(self, widget: Gtk.Widget) -> None:
+        self.rubberband_calendar(
+            RubberBandAmount.MONTH,
+            RubberBandDirection.BACKWARDS
+        )
+
+    @Gtk.Template.Callback()
+    def calendar_next_year(self, widget: Gtk.Widget) -> None:
+        self.rubberband_calendar(
+            RubberBandAmount.YEAR,
+            RubberBandDirection.BACKWARDS
+        )
+
+    @Gtk.Template.Callback()
+    def calendar_prev_month(self, widget: Gtk.Widget) -> None:
+        self.rubberband_calendar(
+            RubberBandAmount.MONTH,
+            RubberBandDirection.FORWARDS
+        )
+
+    @Gtk.Template.Callback()
+    def calendar_prev_year(self, widget: Gtk.Widget) -> None:
+        self.rubberband_calendar(
+            RubberBandAmount.YEAR,
+            RubberBandDirection.FORWARDS
+        )
 
     @Gtk.Template.Callback()
     def submit(self, widget: Gtk.Widget) -> None:

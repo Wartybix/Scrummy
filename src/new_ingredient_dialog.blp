@@ -66,10 +66,10 @@ template $NewIngredientDialog: Adw.Dialog {
                 // TODO: switch to Libadwaita widget when it releases
 
                 day-selected => $calendar_select_date();
-                next-month => $calendar_select_date();
-                prev-month => $calendar_select_date();
-                next-year => $calendar_select_date();
-                prev-year => $calendar_select_date();
+                next-month => $calendar_next_month();
+                prev-month => $calendar_prev_month();
+                next-year => $calendar_next_year();
+                prev-year => $calendar_prev_year();
               }
             };
 
