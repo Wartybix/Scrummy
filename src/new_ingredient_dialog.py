@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 from gi.repository import Adw, Gtk, GLib, GObject
-from typing import Callable
+from typing import Callable, Optional
 from scrummy import PREFIX
 
 def default_date() -> GLib.DateTime:
@@ -61,7 +61,9 @@ class NewIngredientDialog(Adw.Dialog):
 
     def __init__(
         self,
-        on_submit: Callable[[Gtk.Widget, str, GLib.DateTime], None],
+        on_submit: Callable[[str, GLib.DateTime], None],
+        existing_name: str=None,
+        existing_date: Optional[GLib.DateTime]=None,
         **kwargs
     ):
         super().__init__(**kwargs)
@@ -69,7 +71,13 @@ class NewIngredientDialog(Adw.Dialog):
 
         self.date_button.set_create_popup_func(popup)
 
-        self.set_date_entry(default_date())
+        title = _("Edit Ingredient") if existing_name else _("New Ingredient")
+        self.set_title(title)
+
+        self.name_row.set_text(existing_name if existing_name else "")
+
+        self.switch_row.set_active(existing_date is not None)
+        self.set_date_entry(existing_date if existing_date else default_date())
 
     def parse_date_entry(self) -> GLib.DateTime:
         parsed_date = GLib.Date.new()

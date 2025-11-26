@@ -21,6 +21,35 @@ from gi.repository import Adw, Gtk, GLib
 from scrummy import PREFIX
 from typing import Optional
 from scrummy.shared import min_date
+from scrummy.new_ingredient_dialog import NewIngredientDialog
+
+def show_edit_dialog(
+    ingredient: 'Ingredient',
+    action_name: str,
+    parameter: GLib.Variant
+) -> None:
+    window = ingredient.get_ancestor(Adw.ApplicationWindow)
+
+    def do_edit(name: str, date: Optional[GLib.DateTime]) -> None:
+        selected_meal = window.sidebar.get_selected_item()
+        old_date = selected_meal.get_bb_date()
+
+        ingredient.set_title(name)
+        ingredient.set_bb_date(date)
+
+        selected_meal.update()
+
+        if selected_meal != window.unsorted_food:
+            sidebar_section_model = window.sidebar_section_model
+            sidebar_section_model.update_meal_position(selected_meal, old_date)
+
+    dialog = NewIngredientDialog(
+        do_edit,
+        ingredient.get_title(),
+        ingredient.get_bb_date()
+    )
+
+    dialog.present(window)
 
 @Gtk.Template(resource_path=f"{PREFIX}/ingredient.ui")
 class Ingredient(Adw.ActionRow):
@@ -31,6 +60,13 @@ class Ingredient(Adw.ActionRow):
         super().__init__(**kwargs)
 
         self.set_title(title)
+        self.set_bb_date(bb_date)
+
+        self.frozen = False
+
+        self.install_action('ingredient.edit', None, show_edit_dialog)
+
+    def set_bb_date(self, bb_date: GLib.DateTime) -> None:
         self.bb_date = bb_date
 
         if bb_date:
@@ -38,8 +74,6 @@ class Ingredient(Adw.ActionRow):
             self.set_subtitle(_("Use by {}").format(date_str))
         else:
             self.set_subtitle(_("Undated"))
-
-        self.frozen = False
 
     def get_bb_date(self) -> Optional[GLib.DateTime]:
         return self.bb_date

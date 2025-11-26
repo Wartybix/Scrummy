@@ -151,6 +151,10 @@ class Meal(Adw.SidebarItem):
         self.update_subtitle()
         self.cache_outdated = True
 
+    def update(self):
+        self.ingredients.sort(compare_ingredients)
+        self.cache_outdated = True
+
     def remove_ingredient(self, ingredient: Ingredient) -> None:
         self.ingredients -= ingredient
         self.cache_outdated = True
