@@ -6,8 +6,6 @@ template $NewIngredientDialog: Adw.Dialog {
   content-width: 450;
   focus-widget: name_row;
 
-  // TODO: improve date entry like gnome calendar's
-
   [child]
   Adw.ToolbarView {
     [top]
@@ -42,32 +40,36 @@ template $NewIngredientDialog: Adw.Dialog {
 
           // TODO: previous ingredient dropdown suggestions? + better rejection
         }
+      }
 
+      Adw.PreferencesGroup {
+        Adw.SwitchRow switch_row {
+          title: _("_Has Expiry Date");
+          use-underline: true;
+        }
         Adw.EntryRow date_row {
           title: _("Expiry _Date");
           use-underline: true;
+          sensitive: bind switch_row.active;
+
+          EventControllerFocus {
+            notify::contains-focus => $on_date_focus_change();
+          }
 
           [suffix]
-          MenuButton {
+          MenuButton date_button {
             icon-name: "month-symbolic";
             valign: center;
 
             popover: Popover {
-              Box {
-                orientation: vertical;
-                spacing: 8;
-                margin-bottom: 8;
+              Calendar calendar {
+                // TODO: switch to Libadwaita widget when it releases
 
-                Calendar {
-                  // TODO: switch to Libadwaita widget when it releases
-                }
-
-                Button {
-                  label: _("_Remove Date");
-                  use-underline: true;
-                  clicked => $clear_date();
-                  halign: center;
-                }
+                day-selected => $calendar_select_date();
+                next-month => $calendar_select_date();
+                prev-month => $calendar_select_date();
+                next-year => $calendar_select_date();
+                prev-year => $calendar_select_date();
               }
             };
 
