@@ -33,7 +33,6 @@ class Ingredient(Adw.ActionRow):
         self.set_title(title)
         self.bb_date = bb_date
 
-        # TODO: change based on localisations
         if bb_date:
             date_str = bb_date.format("%x")
             self.set_subtitle(_("Use by {}").format(date_str))

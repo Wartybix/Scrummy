@@ -52,6 +52,8 @@ def djb2_hash(string):
         hash_value = (hash_value << 5) + hash_value + ord(char)  # Update hash value
         hash_value = c_uint32(hash_value).value # Keep limited to 32 bit unsigned integer
     return hash_value  # Return final hash value
+    
+# TODO: check there aren't problems when changing timezone.
 
 class Meal(Adw.SidebarItem):
     """ Sidebar item representing a meal """
