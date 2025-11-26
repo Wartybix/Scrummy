@@ -51,6 +51,19 @@ def show_edit_dialog(
 
     dialog.present(window)
 
+def duplicate(
+    ingredient: 'Ingredient',
+    action_name: str,
+    parameter: GLib.Variant
+) -> None:
+    new_ingredient = ingredient.copy()
+
+    window = ingredient.get_ancestor(Adw.ApplicationWindow)
+    selected_meal = window.sidebar.get_selected_item()
+
+    selected_meal.add_ingredient(new_ingredient)
+
+
 @Gtk.Template(resource_path=f"{PREFIX}/ingredient.ui")
 class Ingredient(Adw.ActionRow):
     """ An action row representing an ingredient / food item """
@@ -65,6 +78,7 @@ class Ingredient(Adw.ActionRow):
         self.frozen = False
 
         self.install_action('ingredient.edit', None, show_edit_dialog)
+        self.install_action('ingredient.duplicate', None, duplicate)
 
     def set_bb_date(self, bb_date: GLib.DateTime) -> None:
         self.bb_date = bb_date

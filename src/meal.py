@@ -63,7 +63,7 @@ class Meal(Adw.SidebarItem):
         self,
         name: str="",
         ingredients: Gio.ListStore=Gio.ListStore(),
-        misc_meal: bool=True,
+        misc_meal: bool=True, # TODO: maybe make this an inheritance thing instead?
         **kwargs
     ):
         super().__init__(**kwargs)
