@@ -101,6 +101,12 @@ template $ScrummyWindow: Adw.ApplicationWindow {
         Adw.ToolbarView {
           [top]
           Adw.HeaderBar {
+            [start]
+            ToggleButton select_mode_toggle {
+              icon-name: "check-round-outline-symbolic";
+              tooltip-text: "Select Ingredients";
+            }
+
             [end]
             Adw.SplitButton eat_btn {
               label: _("Mark Eaten");
@@ -140,7 +146,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
                 }
               };
             }
-            Adw.ViewStackPage {
+            Adw.ViewStackPage ingredients_page {
               name: "ingredients-page";
               child: Adw.PreferencesPage {
                 vexpand: true;

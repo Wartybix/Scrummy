@@ -44,6 +44,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     add_ingredient_action_bar = Gtk.Template.Child()
     empty_status_page = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
+    select_mode_toggle = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -135,6 +136,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.viewstack.set_visible_child_name(page_name)
         self.search_bar.set_visible(not is_empty)
         self.add_ingredient_action_bar.set_visible(not is_empty)
+        self.select_mode_toggle.set_sensitive(not is_empty)
 
     def refresh_main_content(self) -> None:
         selected_item = self.sidebar.get_selected_item()
