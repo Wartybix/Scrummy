@@ -41,9 +41,12 @@ class ScrummyWindow(Adw.ApplicationWindow):
     eat_btn = Gtk.Template.Child()
     viewstack = Gtk.Template.Child()
     search_bar = Gtk.Template.Child()
+    bottom_bar_view_stack = Gtk.Template.Child()
     add_ingredient_action_bar = Gtk.Template.Child()
+    management_action_bar = Gtk.Template.Child()
     empty_status_page = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
+    select_mode_toggle = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -74,6 +77,18 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_action(self.add_ingredient_action)
 
         self.refresh_main_content()
+
+    @Gtk.Template.Callback()
+    def on_select_mode_toggle(self, button: Gtk.ToggleButton) -> None:
+        active = button.get_active()
+        manage_bar = self.management_action_bar
+        add_bar = self.add_ingredient_action_bar
+        view_stack = self.bottom_bar_view_stack
+
+        view_stack.set_visible_child(manage_bar if active else add_bar)
+
+        selected_meal = self.sidebar.get_selected_item()
+        selected_meal.set_selectable(active)
 
     def rename_meal(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         selected_meal = self.sidebar.get_selected_item()
@@ -134,7 +149,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         page_name = "empty-meal-page" if is_empty else "ingredients-page"
         self.viewstack.set_visible_child_name(page_name)
         self.search_bar.set_visible(not is_empty)
-        self.add_ingredient_action_bar.set_visible(not is_empty)
+        self.bottom_bar_view_stack.set_visible(not is_empty)
+        self.select_mode_toggle.set_sensitive(not is_empty)
 
     def refresh_main_content(self) -> None:
         selected_item = self.sidebar.get_selected_item()
@@ -174,6 +190,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_ingredient_btn_empty.set_label(add_ingredient_btn_label)
         self.empty_status_page.set_title(empty_status_page_title)
         self.empty_status_page.set_description(empty_status_page_desc)
+
+        self.select_mode_toggle.set_active(False)
+        selected_item.set_selectable(False)
 
         print('------------')
         for meal in list(self.sidebar.get_items()):

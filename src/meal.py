@@ -159,6 +159,10 @@ class Meal(Adw.SidebarItem):
         self.ingredients -= ingredient
         self.cache_outdated = True
 
+    def set_selectable(self, selection_mode: bool) -> None:
+        for ingredient in self.ingredients:
+            ingredient.set_selectable(selection_mode)
+
     def __str__(self):
         bb_date = self.get_bb_date()
 

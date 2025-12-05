@@ -5,6 +5,7 @@ template $Ingredient: Adw.ActionRow {
   title-lines: 1;
   subtitle-lines: 1;
   use-markup: false;
+  activatable-widget: check_button;
   selectable: false;
 
   [prefix]
@@ -26,14 +27,24 @@ template $Ingredient: Adw.ActionRow {
   }
 
   [suffix]
-  MenuButton menu_button {
-    icon-name: "view-more-symbolic";
-    tooltip-text: _("View More");
-    valign: center;
-    menu-model: ingredient_menu;
+  Adw.ViewStack end_viewstack {
+    MenuButton menu_button {
+      icon-name: "view-more-symbolic";
+      tooltip-text: _("View More");
+      valign: center;
+      menu-model: ingredient_menu;
 
-    styles ["flat"]
+      styles ["flat"]
+    }
+
+    CheckButton check_button {
+      valign: center;
+      sensitive: false;
+
+      styles ["selection-mode"]
+    }
   }
+
 
   // TODO: add DnD movement
 
