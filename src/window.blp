@@ -1,5 +1,6 @@
 using Gtk 4.0;
 using Adw 1;
+using Gdk 4.0;
 
 template $ScrummyWindow: Adw.ApplicationWindow {
   title: _("Scrummy");
@@ -100,12 +101,40 @@ template $ScrummyWindow: Adw.ApplicationWindow {
       Adw.NavigationPage main_nav_page {
         Adw.ToolbarView {
           [top]
-          Adw.HeaderBar {
-            [end]
-            Adw.SplitButton eat_btn {
-              label: _("Mark Eaten");
-              menu-model: meal_menu;
-              action-name: "win.eat_meal";
+          Adw.ViewStack header_viewstack {
+            enable-transitions: true;
+
+            Adw.HeaderBar normal_headerbar {
+              [start]
+              Adw.SplitButton eat_btn {
+                label: _("Mark Eaten");
+                menu-model: meal_menu;
+                action-name: "win.eat_meal";
+              }
+
+              [end]
+              Button select_mode_button {
+                icon-name: "check-round-outline-symbolic";
+                tooltip-text: "Select Ingredients";
+
+                clicked => $enable_select_mode();
+              }
+            }
+
+            Adw.HeaderBar select_mode_headerbar {
+              show-end-title-buttons: false;
+              show-back-button: false;
+
+              [end]
+              Button {
+                label: _("_Cancel");
+                use-underline: true;
+
+                clicked => $disable_select_mode();
+              }
+
+              [title]
+              Adw.WindowTitle selection_title {}
             }
           }
 
@@ -140,28 +169,55 @@ template $ScrummyWindow: Adw.ApplicationWindow {
                 }
               };
             }
-            Adw.ViewStackPage {
+            Adw.ViewStackPage ingredients_page {
               name: "ingredients-page";
               child: Adw.PreferencesPage {
                 vexpand: true;
 
                 [child]
                 Adw.PreferencesGroup ingredients_list {
+                  GestureClick {
+                    pressed => $ingredients_on_right_click();
+                    button: 3; // Right click button
+                  }
+
+                  GestureLongPress {
+                    pressed => $ingredients_on_long_press();
+                  }
                 }
               };
             }
           }
 
           [bottom]
-          ActionBar add_ingredient_action_bar {
-            [center]
-            Button add_ingredient_btn {
-              styles ["pill"]
+          Adw.ViewStack bottom_bar_viewstack {
+            enable-transitions: true;
+            vhomogeneous: false;
 
-              margin-top: 6;
-              margin-bottom: 6;
-              use-underline: true;
-              action-name: "win.add_ingredient";
+            ActionBar add_ingredient_action_bar {
+              [center]
+              Button add_ingredient_btn {
+                styles ["pill"]
+
+                margin-top: 6;
+                margin-bottom: 6;
+                use-underline: true;
+                action-name: "win.add_ingredient";
+              }
+            }
+
+            ActionBar management_action_bar {
+              [start]
+              MenuButton {
+                label: _("Move To");
+                popover: Popover {};
+              }
+
+              [end]
+              MenuButton {
+                label: _("Mark As");
+                popover: Popover {};
+              }
             }
           }
         }

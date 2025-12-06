@@ -25,6 +25,7 @@ from scrummy.meal import Meal
 from scrummy.sidebar_section_model import SidebarSectionModel
 from scrummy import PREFIX
 from typing import Optional
+from gettext import ngettext
 
 @Gtk.Template(resource_path=f'{PREFIX}/window.ui')
 class ScrummyWindow(Adw.ApplicationWindow):
@@ -41,9 +42,16 @@ class ScrummyWindow(Adw.ApplicationWindow):
     eat_btn = Gtk.Template.Child()
     viewstack = Gtk.Template.Child()
     search_bar = Gtk.Template.Child()
+    bottom_bar_viewstack = Gtk.Template.Child()
     add_ingredient_action_bar = Gtk.Template.Child()
+    management_action_bar = Gtk.Template.Child()
     empty_status_page = Gtk.Template.Child()
     toast_overlay = Gtk.Template.Child()
+    header_viewstack = Gtk.Template.Child()
+    normal_headerbar = Gtk.Template.Child()
+    select_mode_headerbar = Gtk.Template.Child()
+    select_mode_button = Gtk.Template.Child()
+    selection_title = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -73,7 +81,95 @@ class ScrummyWindow(Adw.ApplicationWindow):
         )
         self.add_action(self.add_ingredient_action)
 
+        self.selected_ingredients = []
+
         self.refresh_main_content()
+
+    @Gtk.Template.Callback()
+    def enable_select_mode(self, widget: Gtk.Widget, **kwargs) -> None:
+        self.set_select_mode(True)
+        self.update_selection_counter()
+
+    @Gtk.Template.Callback()
+    def disable_select_mode(self, widget: Gtk.Widget, **kwargs) -> None:
+        self.set_select_mode(False)
+        self.selected_ingredients = []
+
+    @Gtk.Template.Callback()
+    def ingredients_on_right_click(
+        self,
+        gesture: Gtk.GestureClick,
+        n_press: int,
+        x: float,
+        y: float
+    ) -> None:
+        self.do_select_gesture(x, y)
+
+    @Gtk.Template.Callback()
+    def ingredients_on_long_press(
+        self,
+        gesture: Gtk.GestureLongPress,
+        x: float,
+        y: float
+    ) -> None:
+        self.do_select_gesture(x, y)
+
+    def do_select_gesture(self, x: float, y: float) -> None:
+        self.set_select_mode(True)
+        pick = self.ingredients_list.pick(x, y, Gtk.PickFlags.DEFAULT)
+
+        if pick is not Ingredient:
+            pick = pick.get_ancestor(Ingredient)
+
+        pick.set_selected(True)
+
+    def set_select_mode(self, enabled: bool) -> None:
+        normal_headerbar = self.normal_headerbar
+        select_mode_headerbar = self.select_mode_headerbar
+
+        manage_bar = self.management_action_bar
+        add_bar = self.add_ingredient_action_bar
+
+        header_viewstack = self.header_viewstack
+        bottom_viewstack = self.bottom_bar_viewstack
+
+        visible_headerbar = header_viewstack.get_visible_child()
+        select_mode_on = visible_headerbar == select_mode_headerbar
+
+        if select_mode_on == enabled:
+            # Don't do anything when the state is the same as before.
+            return
+
+        header_viewstack.set_visible_child(
+            select_mode_headerbar if enabled else normal_headerbar
+        )
+        bottom_viewstack.set_visible_child(manage_bar if enabled else add_bar)
+
+        selected_meal = self.sidebar.get_selected_item()
+        selected_meal.set_selectable(enabled)
+
+    def add_selection(self, ingredient: Ingredient) -> None:
+        self.selected_ingredients.append(ingredient)
+        self.update_selection_counter()
+
+    def remove_selection(self, ingredient: Ingredient) -> None:
+        self.selected_ingredients.remove(ingredient)
+        self.update_selection_counter()
+
+    def update_selection_counter(self) -> None:
+        num_selected = len(self.selected_ingredients)
+
+        selected_meal = self.sidebar.get_selected_item()
+
+        if selected_meal == self.unsorted_food:
+            title = ngettext("{} Item Selected", "{} Items Selected", num_selected)
+        else:
+            title = ngettext("{} Ingredient Selected", "{} Ingredients Selected", num_selected)
+
+        title = title.format(num_selected)
+        self.selection_title.set_title(title)
+
+        self.selection_title.set_subtitle(self.main_nav_page.get_title())
 
     def rename_meal(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         selected_meal = self.sidebar.get_selected_item()
@@ -134,7 +230,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         page_name = "empty-meal-page" if is_empty else "ingredients-page"
         self.viewstack.set_visible_child_name(page_name)
         self.search_bar.set_visible(not is_empty)
-        self.add_ingredient_action_bar.set_visible(not is_empty)
+        self.bottom_bar_viewstack.set_visible(not is_empty)
+        self.select_mode_button.set_visible(not is_empty)
 
     def refresh_main_content(self) -> None:
         selected_item = self.sidebar.get_selected_item()
@@ -174,6 +271,11 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_ingredient_btn_empty.set_label(add_ingredient_btn_label)
         self.empty_status_page.set_title(empty_status_page_title)
         self.empty_status_page.set_description(empty_status_page_desc)
+
+        self.header_viewstack.set_visible_child(self.normal_headerbar)
+        self.bottom_bar_viewstack.set_visible_child(self.add_ingredient_action_bar)
+        selected_item.set_selectable(False)
+        self.selected_ingredients = []
 
         print('------------')
         for meal in list(self.sidebar.get_items()):

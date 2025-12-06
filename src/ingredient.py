@@ -23,6 +23,9 @@ from typing import Optional
 from scrummy.shared import min_date
 from scrummy.new_ingredient_dialog import NewIngredientDialog
 
+# TODO: low coupling high cohesion... move everything calling window code into
+# a passed function?
+
 def show_edit_dialog(
     ingredient: 'Ingredient',
     action_name: str,
@@ -69,6 +72,10 @@ class Ingredient(Adw.ActionRow):
     """ An action row representing an ingredient / food item """
     __gtype_name__ = "Ingredient"
 
+    end_viewstack = Gtk.Template.Child()
+    menu_button = Gtk.Template.Child()
+    check_button = Gtk.Template.Child()
+
     def __init__(self, title: str, bb_date: Optional[GLib.DateTime], **kwargs):
         super().__init__(**kwargs)
 
@@ -97,6 +104,31 @@ class Ingredient(Adw.ActionRow):
             return self.bb_date
         else:
             return min_date
+
+    def set_selectable(self, is_selectable: bool) -> None:
+        self.end_viewstack.set_visible_child(
+            self.check_button if is_selectable else self.menu_button
+        )
+
+        self.check_button.set_sensitive(is_selectable)
+        self.check_button.set_active(False)
+
+    @Gtk.Template.Callback()
+    def on_selection_toggled(self, check_button: Gtk.CheckButton) -> None:
+        if not check_button.get_sensitive():
+            # Don't do anything if check button is not sensitive.
+            return
+
+        # TODO: low coupling high cohesion... change to passed function
+        window = self.get_ancestor(Adw.ApplicationWindow)
+
+        if check_button.get_active():
+            window.add_selection(self)
+        else:
+            window.remove_selection(self)
+
+    def set_selected(self, is_selected: bool) -> None:
+        self.check_button.set_active(is_selected)
 
     def copy(self) -> 'Ingredient':
         return Ingredient(self.get_title(), self.bb_date)
