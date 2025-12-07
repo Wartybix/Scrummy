@@ -39,7 +39,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     add_ingredient_btn = Gtk.Template.Child()
     add_ingredient_btn_empty = Gtk.Template.Child()
     ingredient_search_entry = Gtk.Template.Child()
-    eat_btn = Gtk.Template.Child()
+    edit_btn = Gtk.Template.Child()
     viewstack = Gtk.Template.Child()
     search_bar = Gtk.Template.Child()
     bottom_bar_viewstack = Gtk.Template.Child()
@@ -244,7 +244,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
             add_ingredient_btn_label = _("Add _Item…")
 
             page_title = page_title.replace("_", "")
-            self.eat_btn.set_visible(False)
+            self.edit_btn.set_visible(False)
 
             empty_status_page_title = _("No Food")
             empty_status_page_desc = _("Add snacks and miscellaneous food here")
@@ -254,7 +254,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
             # it's appropriate/applicable to your language.
             add_ingredient_btn_label = _("Add _Ingredient…")
 
-            self.eat_btn.set_visible(True)
+            self.edit_btn.set_visible(True)
 
             empty_status_page_title = _("Empty Meal")
             empty_status_page_desc = _("Add ingredients to sort this meal in the agenda")

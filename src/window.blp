@@ -106,10 +106,16 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
             Adw.HeaderBar normal_headerbar {
               [start]
-              Adw.SplitButton eat_btn {
-                label: _("Mark Eaten");
+              MenuButton edit_btn {
+                // icon-name: "edit-symbolic";
                 menu-model: meal_menu;
-                action-name: "win.eat_meal";
+                always-show-arrow: true;
+
+                Adw.ButtonContent {
+                  icon-name: "edit-symbolic";
+                  label: _("_Edit");
+                  use-underline: true;
+                }
               }
 
               [end]
@@ -229,17 +235,21 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 menu meal_menu {
   section {
     item {
-      label: _("Duplicate");
-      action: "win.duplicate_meal";
+      label: _("Mark _Eaten");
+      action: "win.eat_meal";
     }
   }
   section {
     item {
-      label: _("Rename…");
+      label: _("Dupli_cate");
+      action: "win.duplicate_meal";
+    }
+    item {
+      label: _("_Rename…");
       action: "win.rename_meal";
     }
     item {
-      label: _("Delete…");
+      label: _("_Delete…");
     }
   }
 }
