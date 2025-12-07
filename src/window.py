@@ -218,6 +218,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
         selected_item = self.sidebar.get_selected_item()
         self.sidebar_section_model.remove_meal(selected_item)
         self.refresh_main_content()
+        self.split_view.set_show_content(False)
 
         toast = Adw.Toast.new(
             # TRANSLATORS: {} represents a name of a meal.
