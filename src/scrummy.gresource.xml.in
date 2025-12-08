@@ -2,13 +2,11 @@
 <gresources>
   <gresource prefix="@PREFIX@/icons/scalable/actions">
     <file preprocess="xml-stripblanks" alias="edit-find-symbolic.svg">../data/icons/scalable/actions/edit-find-symbolic.svg</file>
-    <file preprocess="xml-stripblanks" alias="check-plain-symbolic.svg">../data/icons/scalable/actions/check-plain-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="refrigerator-symbolic.svg">../data/icons/scalable/actions/refrigerator-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="month-symbolic.svg">../data/icons/scalable/actions/month-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="warning-outline-symbolic.svg">../data/icons/scalable/actions/warning-outline-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="restaurant-symbolic.svg">../data/icons/scalable/actions/restaurant-symbolic.svg</file>
     <file preprocess="xml-stripblanks" alias="check-round-outline-symbolic.svg">../data/icons/scalable/actions/check-round-outline-symbolic.svg</file>
-    <file preprocess="xml-stripblanks" alias="edit-symbolic.svg">../data/icons/scalable/actions/edit-symbolic.svg</file>
   </gresource>
   <gresource prefix="@PREFIX@/icons/">
     <file preprocess="xml-stripblanks" alias="io.github.wartybix.Constrict.svg">../data/icons/io.github.wartybix.Constrict.svg</file>

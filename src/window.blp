@@ -106,16 +106,11 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
             Adw.HeaderBar normal_headerbar {
               [start]
-              MenuButton edit_btn {
-                // icon-name: "edit-symbolic";
+              Adw.SplitButton eat_btn {
+                label: _("_Eat");
+                use-underline: true;
                 menu-model: meal_menu;
-                always-show-arrow: true;
-
-                Adw.ButtonContent {
-                  icon-name: "edit-symbolic";
-                  label: _("_Edit");
-                  use-underline: true;
-                }
+                action-name: "win.eat_meal";
               }
 
               [end]
@@ -220,9 +215,11 @@ template $ScrummyWindow: Adw.ApplicationWindow {
               }
 
               [end]
-              MenuButton {
-                label: _("Mark As");
-                popover: Popover {};
+              Adw.SplitButton {
+                label: _("_Eat");
+                use-underline: true;
+
+                menu-model: edit_ingredients_menu;
               }
             }
           }
@@ -232,18 +229,29 @@ template $ScrummyWindow: Adw.ApplicationWindow {
   };
 }
 
-menu meal_menu {
+menu edit_ingredients_menu {
   section {
     item {
-      label: _("Mark _Eaten");
-      action: "win.eat_meal";
+      label: _("_Freeze");
+      action: "win.freeze_ingredients";
     }
   }
+  section {
+    item {
+      label: _("_Delete…");
+      action: "win.delete_ingredients";
+    }
+  }
+}
+
+menu meal_menu {
   section {
     item {
       label: _("Dupli_cate");
       action: "win.duplicate_meal";
     }
+  }
+  section {
     item {
       label: _("_Rename…");
       action: "win.rename_meal";
