@@ -24,7 +24,7 @@ from scrummy.new_ingredient_dialog import NewIngredientDialog
 from scrummy.meal import Meal
 from scrummy.sidebar_section_model import SidebarSectionModel
 from scrummy import PREFIX
-from typing import Optional
+from typing import Optional, List
 from gettext import ngettext
 
 @Gtk.Template(resource_path=f'{PREFIX}/window.ui')
@@ -81,9 +81,50 @@ class ScrummyWindow(Adw.ApplicationWindow):
         )
         self.add_action(self.add_ingredient_action)
 
+        self.eat_selected_ingredients_action = Gio.SimpleAction(
+            name="eat_selected_ingredients"
+        )
+        self.eat_selected_ingredients_action.connect(
+            "activate",
+            self.eat_selected_ingredients
+        )
+        self.add_action(self.eat_selected_ingredients_action)
+
         self.selected_ingredients = []
 
         self.refresh_main_content()
+
+    def eat_selected_ingredients(
+        self,
+        action: Gio.Action,
+        parameter: GLib.Variant
+    ) -> None:
+        self.do_eat_ingredients(self.selected_ingredients)
+        self.selected_ingredients = []
+
+    def do_eat_ingredients(self, ingredients: List[Ingredient]) -> None:
+        selected_meal = self.sidebar.get_selected_item()
+
+        for ingredient in ingredients:
+            selected_meal.remove_ingredient(ingredient)
+
+        if len(ingredients) == 1:
+            toast_msg = _("‘{}’ marked as eaten").format(ingredient.get_title())
+        else:
+            if selected_meal == self.unsorted_food:
+                toast_msg = ngettext("{} item marked as eaten", "{} items marked as eaten", len(ingredients))
+            else:
+                toast_msg = ngettext("{} ingredient marked as eaten", "{} ingredients marked as eaten", len(ingredients))
+            toast_msg = toast_msg.format(len(ingredients))
+
+
+        toast = Adw.Toast.new(toast_msg)
+        toast.set_button_label(_("Undo")) # TODO: make this button do something
+        toast.set_priority(Adw.ToastPriority.HIGH)
+        self.toast_overlay.add_toast(toast)
+
+        self.set_main_page(len(selected_meal.ingredients) == 0)
+        self.set_select_mode(False)
 
     @Gtk.Template.Callback()
     def enable_select_mode(self, widget: Gtk.Widget, **kwargs) -> None:
@@ -225,6 +266,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
             _("‘{}’ marked as eaten").format(selected_item.get_title())
         )
         toast.set_button_label(_("Undo")) # TODO: make this button do something
+        toast.set_priority(Adw.ToastPriority.HIGH)
         self.toast_overlay.add_toast(toast)
 
     def set_main_page(self, is_empty: bool) -> None:

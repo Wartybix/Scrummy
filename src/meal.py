@@ -156,7 +156,11 @@ class Meal(Adw.SidebarItem):
         self.cache_outdated = True
 
     def remove_ingredient(self, ingredient: Ingredient) -> None:
-        self.ingredients -= ingredient
+        index = ingredient.get_index()
+        self.ingredients.remove(index)
+
+        self.update_subtitle()
+
         self.cache_outdated = True
 
     def set_selectable(self, is_selectable: bool) -> None:

@@ -218,6 +218,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
               Adw.SplitButton {
                 label: _("_Eat");
                 use-underline: true;
+                action-name: "win.eat_selected_ingredients";
 
                 menu-model: edit_ingredients_menu;
               }

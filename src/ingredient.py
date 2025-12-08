@@ -66,6 +66,14 @@ def duplicate(
 
     selected_meal.add_ingredient(new_ingredient)
 
+def eat(
+    ingredient: 'Ingredient',
+    action_name: str,
+    parameter: GLib.Variant
+) -> None:
+    window = ingredient.get_ancestor(Adw.ApplicationWindow)
+    window.do_eat_ingredients([ingredient])
+
 
 @Gtk.Template(resource_path=f"{PREFIX}/ingredient.ui")
 class Ingredient(Adw.ActionRow):
@@ -86,6 +94,7 @@ class Ingredient(Adw.ActionRow):
 
         self.install_action('ingredient.edit', None, show_edit_dialog)
         self.install_action('ingredient.duplicate', None, duplicate)
+        self.install_action('ingredient.eat', None, eat)
 
     def set_bb_date(self, bb_date: GLib.DateTime) -> None:
         self.bb_date = bb_date
