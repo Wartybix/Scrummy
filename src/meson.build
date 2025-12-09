@@ -8,7 +8,8 @@ blueprints = custom_target('blueprints',
     'window.blp',
     'ingredient.blp',
     'new_meal_dialog.blp',
-    'new_ingredient_dialog.blp'
+    'new_ingredient_dialog.blp',
+    'move_to_dialog.blp'
   ),
   output: '.',
   command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
@@ -58,7 +59,8 @@ scrummy_sources = [
   'new_ingredient_dialog.py',
   'meal.py',
   'sidebar_section_model.py',
-  'shared.py'
+  'shared.py',
+  'move_to_dialog.py'
 ]
 
 install_data(scrummy_sources, install_dir: moduledir)

@@ -17,7 +17,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-from gi.repository import Adw, Gtk, GLib
+from gi.repository import Adw, Gtk, GLib, Gio
 from scrummy import PREFIX
 from typing import Optional
 from scrummy.shared import min_date
@@ -74,6 +74,13 @@ def eat(
     window = ingredient.get_ancestor(Adw.ApplicationWindow)
     window.do_eat_ingredients([ingredient])
 
+def move_to(
+    ingredient: 'Ingredient',
+    action_name: str,
+    parameter: GLib.Variant
+) -> None:
+    window = ingredient.get_ancestor(Adw.ApplicationWindow)
+    window.do_show_move_to_dialog([ingredient])
 
 @Gtk.Template(resource_path=f"{PREFIX}/ingredient.ui")
 class Ingredient(Adw.ActionRow):
@@ -84,7 +91,13 @@ class Ingredient(Adw.ActionRow):
     menu_button = Gtk.Template.Child()
     check_button = Gtk.Template.Child()
 
-    def __init__(self, title: str, bb_date: Optional[GLib.DateTime], **kwargs):
+    def __init__(
+        self,
+        title: str,
+        bb_date: Optional[GLib.DateTime],
+        window_move_to_action: Gio.SimpleAction,
+        **kwargs
+    ):
         super().__init__(**kwargs)
 
         self.set_title(title)
@@ -95,6 +108,19 @@ class Ingredient(Adw.ActionRow):
         self.install_action('ingredient.edit', None, show_edit_dialog)
         self.install_action('ingredient.duplicate', None, duplicate)
         self.install_action('ingredient.eat', None, eat)
+        self.install_action('ingredient.move_to', None, move_to)
+
+        self.window_move_to_action = window_move_to_action
+        self.set_can_move(self.window_move_to_action, None)
+
+        self.window_move_to_action.connect(
+            "notify::enabled",
+            self.set_can_move
+        )
+
+    def set_can_move(self, action: Gio.Action, parameter: GLib.Variant) -> None:
+        print("set can move triggered")
+        self.action_set_enabled('ingredient.move_to', action.get_enabled())
 
     def set_bb_date(self, bb_date: GLib.DateTime) -> None:
         self.bb_date = bb_date
@@ -140,7 +166,11 @@ class Ingredient(Adw.ActionRow):
         self.check_button.set_active(is_selected)
 
     def copy(self) -> 'Ingredient':
-        return Ingredient(self.get_title(), self.bb_date)
+        return Ingredient(
+            self.get_title(),
+            self.bb_date,
+            self.window_move_to_action
+        )
 
     def __str__(self):
         bb_date = self.bb_date

@@ -23,6 +23,7 @@ from scrummy.new_meal_dialog import NewMealDialog
 from scrummy.new_ingredient_dialog import NewIngredientDialog
 from scrummy.meal import Meal
 from scrummy.sidebar_section_model import SidebarSectionModel
+from scrummy.move_to_dialog import MoveToDialog
 from scrummy import PREFIX
 from typing import Optional, List
 from gettext import ngettext
@@ -90,9 +91,55 @@ class ScrummyWindow(Adw.ApplicationWindow):
         )
         self.add_action(self.eat_selected_ingredients_action)
 
+        self.move_selected_ingredients_action = Gio.SimpleAction(
+            name="move_selected_ingredients"
+        )
+        self.move_selected_ingredients_action.connect(
+            "activate",
+            self.show_move_to_dialog
+        )
+        self.move_selected_ingredients_action.set_enabled(False)
+        self.add_action(self.move_selected_ingredients_action)
+
         self.selected_ingredients = []
 
         self.refresh_main_content()
+
+    def show_move_to_dialog(
+        self,
+        action: Gio.Action,
+        parameter: GLib.Variant
+    ) -> None:
+        self.do_show_move_to_dialog(self.selected_ingredients)
+
+    def do_show_move_to_dialog(self, ingredients: List[Ingredient]) -> None:
+        selected_meal = self.sidebar.get_selected_item()
+        all_meals = self.sidebar.get_items()
+
+        dialog = MoveToDialog(
+            lambda meal: self.do_move(ingredients, meal),
+            all_meals,
+            selected_meal
+        )
+        dialog.present(self)
+
+    def do_move(self, ingredients: List[Ingredient], dest_meal: Meal) -> None:
+        source_meal = self.sidebar.get_selected_item()
+
+        self.do_remove_ingredients(ingredients)
+
+        dest_old_date = dest_meal.get_bb_date()
+
+        for ingredient in ingredients:
+            dest_meal.add_ingredient(ingredient)
+
+        if dest_meal != self.unsorted_food:
+            self.sidebar_section_model.update_meal_position(
+                dest_meal,
+                dest_old_date
+            )
+
+        self.sidebar.set_selected(source_meal.get_index())
 
     def eat_selected_ingredients(
         self,
@@ -100,16 +147,32 @@ class ScrummyWindow(Adw.ApplicationWindow):
         parameter: GLib.Variant
     ) -> None:
         self.do_eat_ingredients(self.selected_ingredients)
-        self.selected_ingredients = []
 
-    def do_eat_ingredients(self, ingredients: List[Ingredient]) -> None:
+    def do_remove_ingredients(self, ingredients: List[Ingredient]) -> None:
         selected_meal = self.sidebar.get_selected_item()
+
+        old_date = selected_meal.get_bb_date()
 
         for ingredient in ingredients:
             selected_meal.remove_ingredient(ingredient)
 
+        if selected_meal != self.unsorted_food:
+            self.sidebar_section_model.update_meal_position(
+                selected_meal,
+                old_date
+            )
+
+        self.set_main_page(len(selected_meal.ingredients) == 0)
+        self.set_select_mode(False)
+
+    def do_eat_ingredients(self, ingredients: List[Ingredient]) -> None:
+        self.do_remove_ingredients(ingredients)
+        selected_meal = self.sidebar.get_selected_item()
+
         if len(ingredients) == 1:
-            toast_msg = _("‘{}’ marked as eaten").format(ingredient.get_title())
+            toast_msg = _("‘{}’ marked as eaten").format(
+                ingredients[0].get_title()
+            )
         else:
             if selected_meal == self.unsorted_food:
                 toast_msg = ngettext("{} item marked as eaten", "{} items marked as eaten", len(ingredients))
@@ -117,14 +180,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
                 toast_msg = ngettext("{} ingredient marked as eaten", "{} ingredients marked as eaten", len(ingredients))
             toast_msg = toast_msg.format(len(ingredients))
 
-
         toast = Adw.Toast.new(toast_msg)
         toast.set_button_label(_("Undo")) # TODO: make this button do something
         toast.set_priority(Adw.ToastPriority.HIGH)
         self.toast_overlay.add_toast(toast)
-
-        self.set_main_page(len(selected_meal.ingredients) == 0)
-        self.set_select_mode(False)
 
     @Gtk.Template.Callback()
     def enable_select_mode(self, widget: Gtk.Widget, **kwargs) -> None:
@@ -134,7 +193,6 @@ class ScrummyWindow(Adw.ApplicationWindow):
     @Gtk.Template.Callback()
     def disable_select_mode(self, widget: Gtk.Widget, **kwargs) -> None:
         self.set_select_mode(False)
-        self.selected_ingredients = []
 
     @Gtk.Template.Callback()
     def ingredients_on_right_click(
@@ -188,6 +246,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         selected_meal = self.sidebar.get_selected_item()
         selected_meal.set_selectable(enabled)
+
+        self.selected_ingredients = []
 
     def add_selection(self, ingredient: Ingredient) -> None:
         self.selected_ingredients.append(ingredient)
@@ -261,6 +321,9 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.refresh_main_content()
         self.split_view.set_show_content(False)
 
+        all_meals = self.sidebar.get_items()
+        self.move_selected_ingredients_action.set_enabled(len(all_meals) > 1)
+
         toast = Adw.Toast.new(
             # TRANSLATORS: {} represents a name of a meal.
             _("‘{}’ marked as eaten").format(selected_item.get_title())
@@ -286,7 +349,6 @@ class ScrummyWindow(Adw.ApplicationWindow):
             # it's appropriate/applicable to your language.
             add_ingredient_btn_label = _("Add _Item…")
 
-            page_title = page_title.replace("_", "")
             self.eat_btn.set_visible(False)
 
             empty_status_page_title = _("No Food")
@@ -341,6 +403,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
             for meal in list(self.sidebar.get_items()):
                 print(meal)
 
+            self.move_selected_ingredients_action.set_enabled(True)
+
         dialog = NewMealDialog(add_meal)
         dialog.present(self)
 
@@ -350,7 +414,11 @@ class ScrummyWindow(Adw.ApplicationWindow):
         parameter: GLib.Variant
     ) -> None:
         def add_ingredient(name: str, date: Optional[GLib.DateTime]) -> None:
-            ingredient = Ingredient(name, date)
+            ingredient = Ingredient(
+                name,
+                date,
+                self.move_selected_ingredients_action
+            )
             selected_item = self.sidebar.get_selected_item()
 
             old_date = selected_item.get_bb_date()
@@ -359,7 +427,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
             self.set_main_page(False)
 
             if selected_item != self.unsorted_food:
-                self.sidebar_section_model.update_meal_position(selected_item, old_date)
+                self.sidebar_section_model.update_meal_position(
+                    selected_item,
+                    old_date
+                )
 
         dialog = NewIngredientDialog(add_ingredient)
         dialog.present(self)

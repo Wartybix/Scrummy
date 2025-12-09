@@ -23,7 +23,7 @@ from scrummy import PREFIX
 
 @Gtk.Template(resource_path=f"{PREFIX}/new_meal_dialog.ui")
 class NewMealDialog(Adw.Dialog):
-    """ An action row representing an ingredient / food item """
+    """ A dialog to enter details about a meal """
     __gtype_name__ = "NewMealDialog"
 
     entry_row = Gtk.Template.Child()

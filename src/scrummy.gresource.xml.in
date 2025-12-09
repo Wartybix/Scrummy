@@ -17,6 +17,7 @@
     <file preprocess="xml-stripblanks">ingredient.ui</file>
     <file preprocess="xml-stripblanks">new_meal_dialog.ui</file>
     <file preprocess="xml-stripblanks">new_ingredient_dialog.ui</file>
+    <file preprocess="xml-stripblanks">move_to_dialog.ui</file>
     <file alias="style.css">gtk/style.css</file>
     <file preprocess="xml-stripblanks" alias="@APPLICATION_ID@.metainfo.xml">../data/@APPLICATION_ID@.metainfo.xml</file>
   </gresource>

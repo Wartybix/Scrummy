@@ -1,6 +1,5 @@
 using Gtk 4.0;
 using Adw 1;
-using Gdk 4.0;
 
 template $ScrummyWindow: Adw.ApplicationWindow {
   title: _("Scrummy");
@@ -56,6 +55,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
           }
 
           Adw.Sidebar sidebar {
+            // TODO: sidebar menu model?
             activated => $on_sidebar_activated();
             selected: 0;
 
@@ -72,8 +72,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
             Adw.SidebarSection {
               $Meal unsorted_food {
-                title: _("_Unsorted Food");
-                use-underline: true;
+                title: _("Unsorted Food");
                 icon-name: "refrigerator-symbolic";
               }
             }
@@ -209,9 +208,12 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
             ActionBar management_action_bar {
               [start]
-              MenuButton {
-                label: _("Move To");
-                popover: Popover {};
+              Button {
+                label: _("Move _To…");
+                use-underline: true;
+                action-name: "win.move_selected_ingredients";
+
+                valign: center;
               }
 
               [end]
@@ -219,8 +221,10 @@ template $ScrummyWindow: Adw.ApplicationWindow {
                 label: _("_Eat");
                 use-underline: true;
                 action-name: "win.eat_selected_ingredients";
-
                 menu-model: edit_ingredients_menu;
+                valign: center;
+
+                styles ["raised"]
               }
             }
           }

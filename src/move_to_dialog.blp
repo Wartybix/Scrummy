@@ -1,0 +1,50 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $MoveToDialog: Adw.Dialog {
+  title: _("Select Destination");
+
+  [child]
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      show-end-title-buttons: false;
+
+      [start]
+      Button {
+        label: _("_Cancel");
+        use-underline: true;
+        clicked => $cancel();
+      }
+
+      [end]
+      Button move_btn {
+        label: _("_Move");
+        use-underline: true;
+        clicked => $submit();
+        sensitive: false;
+
+        styles ["suggested-action"]
+      }
+
+      [end]
+      ToggleButton search_btn {
+        icon-name: "edit-find-symbolic";
+        tooltip-text: _("Search");
+      }
+    }
+
+    [top]
+    SearchBar {
+      search-mode-enabled: bind search_btn.active bidirectional;
+      key-capture-widget: template;
+
+      child: SearchEntry search_entry {
+        placeholder-text: _("Search meals");
+        hexpand: true;
+      };
+    }
+
+    content: Adw.PreferencesPage main_page {};
+  }
+}

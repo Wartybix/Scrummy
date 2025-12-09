@@ -50,7 +50,7 @@ class RubberBandDirection:
 
 @Gtk.Template(resource_path=f"{PREFIX}/new_ingredient_dialog.ui")
 class NewIngredientDialog(Adw.Dialog):
-    """ An action row representing an ingredient / food item """
+    """ A dialog to enter details about an ingredient """
     __gtype_name__ = "NewIngredientDialog"
 
     name_row = Gtk.Template.Child()
