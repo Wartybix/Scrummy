@@ -18,22 +18,13 @@ template $ScrummyWindow: Adw.ApplicationWindow {
   }
 
   content: Adw.ToastOverlay toast_overlay {
-    child: Adw.NavigationSplitView split_view {
-      min-sidebar-width: 220;
+    child: Adw.ViewStack window_viewstack {
+      Adw.ViewStackPage {
+        name: "status_page";
 
-      [sidebar]
-      Adw.NavigationPage {
-        title: _("Meals");
-
-        Adw.ToolbarView {
+        child: Adw.ToolbarView {
           [top]
           Adw.HeaderBar {
-            [start]
-            ToggleButton search_btn {
-              icon-name: "edit-find-symbolic";
-              tooltip-text: _("Search");
-            }
-
             [end]
             MenuButton {
               primary: true;
@@ -43,192 +34,251 @@ template $ScrummyWindow: Adw.ApplicationWindow {
             }
           }
 
-          [top]
-          SearchBar {
-            search-mode-enabled: bind search_btn.active bidirectional;
-            key-capture-widget: template;
+          Adw.StatusPage {
+            icon-name: "restaurant-symbolic";
+            title: _("Manage Your Meals");
+            description: _("Create a new database, or open an existing one");
 
-            child: SearchEntry search_entry {
-              placeholder-text: _("Search meals");
-              hexpand: true;
-            };
-          }
+            child: Box {
+              spacing: 12;
+              orientation: vertical;
+              halign: center;
 
-          Adw.Sidebar sidebar {
-            // TODO: sidebar menu model?
-            activated => $on_sidebar_activated();
-            selected: 0;
-
-            filter: StringFilter {
-              expression: expr item as <Adw.SidebarItem>.title;
-              search: bind search_entry.text;
-            };
-
-            placeholder: Adw.StatusPage {
-              icon-name: "edit-find-symbolic";
-              title: _("No Results Found");
-              description: _("Try a different search");
-            };
-
-            Adw.SidebarSection {
-              $Meal unsorted_food {
-                title: _("Unsorted Food");
-                icon-name: "refrigerator-symbolic";
-              }
-            }
-          }
-
-          [bottom]
-          ActionBar {
-            [center]
-            Button {
-              styles ["pill"]
-
-              margin-top: 6;
-              margin-bottom: 6;
-
-              label: _("Add _Meal…");
-              use-underline: true;
-
-              action-name: "win.add_meal";
-            }
-          }
-        }
-      }
-
-      [content]
-      Adw.NavigationPage main_nav_page {
-        Adw.ToolbarView {
-          [top]
-          Adw.ViewStack header_viewstack {
-            enable-transitions: true;
-
-            Adw.HeaderBar normal_headerbar {
-              [start]
-              Adw.SplitButton eat_btn {
-                label: _("_Eat");
-                use-underline: true;
-                menu-model: meal_menu;
-                action-name: "win.eat_meal";
-              }
-
-              [end]
-              Button select_mode_button {
-                icon-name: "check-round-outline-symbolic";
-                tooltip-text: "Select Ingredients";
-
-                clicked => $enable_select_mode();
-              }
-            }
-
-            Adw.HeaderBar select_mode_headerbar {
-              show-end-title-buttons: false;
-              show-back-button: false;
-
-              [end]
               Button {
-                label: _("_Cancel");
+                label: _("Create _New…");
                 use-underline: true;
+                action-name: "win.new_file";
 
-                clicked => $disable_select_mode();
+                styles ["suggested-action", "pill"]
               }
 
-              [title]
-              Adw.WindowTitle selection_title {}
-            }
-          }
+              Button {
+                label: _("_Open…");
+                use-underline: true;
+                action-name: "win.open_file";
 
-          [top]
-          SearchBar search_bar {
-            search-mode-enabled: true;
-            [child]
-            Adw.Clamp {
-              maximum-size: 400;
-              hexpand: true;
-              margin-start: 6;
-              margin-end: 6;
-
-              [child]
-              SearchEntry ingredient_search_entry {}
-            }
-          }
-
-          Adw.ViewStack viewstack {
-            Adw.ViewStackPage {
-              name: "empty-meal-page";
-              child: Adw.StatusPage empty_status_page {
-                icon-name: "restaurant-symbolic";
-
-                Button add_ingredient_btn_empty {
-                  use-underline: true;
-                  can-shrink: true;
-                  halign: center;
-                  action-name: "win.add_ingredient";
-
-                  styles ["pill", "suggested-action"]
-                }
-              };
-            }
-            Adw.ViewStackPage ingredients_page {
-              name: "ingredients-page";
-              child: Adw.PreferencesPage {
-                vexpand: true;
-
-                [child]
-                Adw.PreferencesGroup ingredients_list {
-                  GestureClick {
-                    pressed => $ingredients_on_right_click();
-                    button: 3; // Right click button
-                  }
-
-                  GestureLongPress {
-                    pressed => $ingredients_on_long_press();
-                  }
-                }
-              };
-            }
-          }
-
-          [bottom]
-          Adw.ViewStack bottom_bar_viewstack {
-            enable-transitions: true;
-            vhomogeneous: false;
-
-            ActionBar add_ingredient_action_bar {
-              [center]
-              Button add_ingredient_btn {
                 styles ["pill"]
-
-                margin-top: 6;
-                margin-bottom: 6;
-                use-underline: true;
-                action-name: "win.add_ingredient";
               }
-            }
+            };
+          }
+        };
+      }
+      Adw.ViewStackPage {
+        name: "split_view_page";
 
-            ActionBar management_action_bar {
-              [start]
-              Button {
-                label: _("Move _To…");
-                use-underline: true;
-                action-name: "win.move_selected_ingredients";
+        child: Adw.NavigationSplitView split_view {
+          min-sidebar-width: 220;
 
-                valign: center;
+          [sidebar]
+          Adw.NavigationPage {
+            title: _("Meals");
+
+            Adw.ToolbarView {
+              [top]
+              Adw.HeaderBar {
+                [start]
+                ToggleButton search_btn {
+                  icon-name: "edit-find-symbolic";
+                  tooltip-text: _("Search");
+                }
+
+                [end]
+                MenuButton {
+                  primary: true;
+                  icon-name: "open-menu-symbolic";
+                  tooltip-text: _("Main Menu");
+                  menu-model: primary_menu;
+                }
               }
 
-              [end]
-              Adw.SplitButton {
-                label: _("_Eat");
-                use-underline: true;
-                action-name: "win.eat_selected_ingredients";
-                menu-model: edit_ingredients_menu;
-                valign: center;
+              [top]
+              SearchBar {
+                search-mode-enabled: bind search_btn.active bidirectional;
+                key-capture-widget: template;
 
-                styles ["raised"]
+                child: SearchEntry search_entry {
+                  placeholder-text: _("Search meals");
+                  hexpand: true;
+                };
+              }
+
+              Adw.Sidebar sidebar {
+                // TODO: sidebar menu model?
+                activated => $on_sidebar_activated();
+                selected: 0;
+
+                filter: StringFilter {
+                  expression: expr item as <Adw.SidebarItem>.title;
+                  search: bind search_entry.text;
+                };
+
+                placeholder: Adw.StatusPage {
+                  icon-name: "edit-find-symbolic";
+                  title: _("No Results Found");
+                  description: _("Try a different search");
+                };
+
+                Adw.SidebarSection {
+                  $Meal unsorted_food {
+                    title: _("Unsorted Food");
+                    icon-name: "refrigerator-symbolic";
+                  }
+                }
+              }
+
+              [bottom]
+              ActionBar {
+                [center]
+                Button {
+                  styles ["pill"]
+
+                  margin-top: 6;
+                  margin-bottom: 6;
+
+                  label: _("Add _Meal…");
+                  use-underline: true;
+
+                  action-name: "win.add_meal";
+                }
               }
             }
           }
-        }
+
+          [content]
+          Adw.NavigationPage main_nav_page {
+            Adw.ToolbarView {
+              [top]
+              Adw.ViewStack header_viewstack {
+                enable-transitions: true;
+
+                Adw.HeaderBar normal_headerbar {
+                  [start]
+                  Adw.SplitButton eat_btn {
+                    label: _("_Eat");
+                    use-underline: true;
+                    menu-model: meal_menu;
+                    action-name: "win.eat_meal";
+                  }
+
+                  [end]
+                  Button select_mode_button {
+                    icon-name: "check-round-outline-symbolic";
+                    tooltip-text: "Select Ingredients";
+
+                    clicked => $enable_select_mode();
+                  }
+                }
+
+                Adw.HeaderBar select_mode_headerbar {
+                  show-end-title-buttons: false;
+                  show-back-button: false;
+
+                  [end]
+                  Button {
+                    label: _("_Cancel");
+                    use-underline: true;
+
+                    clicked => $disable_select_mode();
+                  }
+
+                  [title]
+                  Adw.WindowTitle selection_title {}
+                }
+              }
+
+              [top]
+              SearchBar search_bar {
+                search-mode-enabled: true;
+                [child]
+                Adw.Clamp {
+                  maximum-size: 400;
+                  hexpand: true;
+                  margin-start: 6;
+                  margin-end: 6;
+
+                  [child]
+                  SearchEntry ingredient_search_entry {}
+                }
+              }
+
+              Adw.ViewStack content_viewstack {
+                Adw.ViewStackPage {
+                  name: "empty-meal-page";
+                  child: Adw.StatusPage empty_status_page {
+                    icon-name: "restaurant-symbolic";
+
+                    Button add_ingredient_btn_empty {
+                      use-underline: true;
+                      can-shrink: true;
+                      halign: center;
+                      action-name: "win.add_ingredient";
+
+                      styles ["pill", "suggested-action"]
+                    }
+                  };
+                }
+                Adw.ViewStackPage ingredients_page {
+                  name: "ingredients-page";
+                  child: Adw.PreferencesPage {
+                    vexpand: true;
+
+                    [child]
+                    Adw.PreferencesGroup ingredients_list {
+                      GestureClick {
+                        pressed => $ingredients_on_right_click();
+                        button: 3; // Right click button
+                      }
+
+                      GestureLongPress {
+                        pressed => $ingredients_on_long_press();
+                      }
+                    }
+                  };
+                }
+              }
+
+              [bottom]
+              Adw.ViewStack bottom_bar_viewstack {
+                enable-transitions: true;
+                vhomogeneous: false;
+
+                ActionBar add_ingredient_action_bar {
+                  [center]
+                  Button add_ingredient_btn {
+                    styles ["pill"]
+
+                    margin-top: 6;
+                    margin-bottom: 6;
+                    use-underline: true;
+                    action-name: "win.add_ingredient";
+                  }
+                }
+
+                ActionBar management_action_bar {
+                  [start]
+                  Button {
+                    label: _("Move _To…");
+                    use-underline: true;
+                    action-name: "win.move_selected_ingredients";
+
+                    valign: center;
+                  }
+
+                  [end]
+                  Adw.SplitButton {
+                    label: _("_Eat");
+                    use-underline: true;
+                    action-name: "win.eat_selected_ingredients";
+                    menu-model: edit_ingredients_menu;
+                    valign: center;
+
+                    styles ["raised"]
+                  }
+                }
+              }
+            }
+          }
+        };
       }
     };
   };
@@ -270,22 +320,14 @@ menu meal_menu {
 menu primary_menu {
   section {
     item {
-      label: _("Sync with Remote");
+      label: _("Open Meals Database…");
+      action: "win.open_file";
     }
     item {
-      label: _("Configure Remote…");
+      label: _("Create new Database…");
+      action: "win.new_file";
     }
   }
-
-  section {
-    item {
-      label: _("Import Meals File…");
-    }
-    item {
-      label: _("Export Meals File…");
-    }
-  }
-
   section {
     item {
       label: _("_Preferences");

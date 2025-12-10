@@ -41,7 +41,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     add_ingredient_btn_empty = Gtk.Template.Child()
     ingredient_search_entry = Gtk.Template.Child()
     eat_btn = Gtk.Template.Child()
-    viewstack = Gtk.Template.Child()
+    content_viewstack = Gtk.Template.Child()
     search_bar = Gtk.Template.Child()
     bottom_bar_viewstack = Gtk.Template.Child()
     add_ingredient_action_bar = Gtk.Template.Child()
@@ -53,6 +53,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     select_mode_headerbar = Gtk.Template.Child()
     select_mode_button = Gtk.Template.Child()
     selection_title = Gtk.Template.Child()
+    window_viewstack = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -101,9 +102,33 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.move_selected_ingredients_action.set_enabled(False)
         self.add_action(self.move_selected_ingredients_action)
 
+        self.open_file_action = Gio.SimpleAction(name="open_file")
+        self.open_file_action.connect("activate", self.open_file_dialog)
+        self.add_action(self.open_file_action)
+
+        self.new_file_action = Gio.SimpleAction(name="new_file")
+        self.new_file_action.connect("activate", self.new_file_dialog)
+        self.add_action(self.new_file_action)
+
         self.selected_ingredients = []
 
         self.refresh_main_content()
+
+    def open_file_dialog(
+        self,
+        action: Gio.Action,
+        parameter: GLib.Variant
+    ) -> None:
+        # TODO: make functional
+        self.window_viewstack.set_visible_child_name("split_view_page")
+
+    def new_file_dialog(
+        self,
+        action: Gio.Action,
+        parameter: GLib.Variant
+    ) -> None:
+        # TODO: make functional
+        self.window_viewstack.set_visible_child_name("split_view_page")
 
     def show_move_to_dialog(
         self,
@@ -334,7 +359,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
     def set_main_page(self, is_empty: bool) -> None:
         page_name = "empty-meal-page" if is_empty else "ingredients-page"
-        self.viewstack.set_visible_child_name(page_name)
+        self.content_viewstack.set_visible_child_name(page_name)
         self.search_bar.set_visible(not is_empty)
         self.bottom_bar_viewstack.set_visible(not is_empty)
         self.select_mode_button.set_visible(not is_empty)
