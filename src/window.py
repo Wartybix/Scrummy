@@ -27,6 +27,7 @@ from scrummy.move_to_dialog import MoveToDialog
 from scrummy import PREFIX
 from typing import Optional, List
 from gettext import ngettext
+import json
 
 @Gtk.Template(resource_path=f'{PREFIX}/window.ui')
 class ScrummyWindow(Adw.ApplicationWindow):
@@ -119,8 +120,53 @@ class ScrummyWindow(Adw.ApplicationWindow):
         action: Gio.Action,
         parameter: GLib.Variant
     ) -> None:
-        # TODO: make functional
+        # Create new file selection dialog, using "open" mode
+        native = Gtk.FileDialog()
+        file_filter = Gtk.FileFilter()
+
+        file_filter.add_mime_type('application/json')
+
+        file_filter.set_name(_('JSON Files'))
+
+        native.set_default_filter(file_filter)
+        native.set_title(_('Open Meals Data'))
+
+        native.open(self, None, self.on_open_response)
+
+    def on_open_response(
+        self,
+        dialog: Gtk.FileDialog,
+        result: Gio.AsyncResult
+    ) -> None:
+        file = dialog.open_finish(result)
+
+        if file is not None:
+            self.open_file(file)
+
+    def open_file(self, file: Gio.File) -> None:
+        file.load_contents_async(None, self.open_file_complete)
+
+    def open_file_complete(
+        self,
+        file: Gio.File,
+        result: Gio.AsyncResult
+    ) -> None:
+        contents = file.load_contents_finish(result)
+
+        if not contents[0]:
+            path = file.peek_path()
+            print(f"Unable to open {path}: {contents[1]}")
+            return
+
+        try:
+            text = contents[1].decode("utf-8")
+        except UnicodeError as err:
+            path = file.peek_path()
+            print(f"Unable to load the contents of {path}: the file is not encoded with UTF-8")
+            return
+
         self.window_viewstack.set_visible_child_name("split_view_page")
+        print(text)
 
     def new_file_dialog(
         self,
@@ -128,6 +174,58 @@ class ScrummyWindow(Adw.ApplicationWindow):
         parameter: GLib.Variant
     ) -> None:
         # TODO: make functional
+        native = Gtk.FileDialog()
+        file_filter = Gtk.FileFilter()
+
+        file_filter.add_mime_type('application/json')
+
+        file_filter.set_name(_('JSON Files'))
+
+        native.set_default_filter(file_filter)
+        native.set_title(_('Save Meals Data'))
+
+        native.save(self, None, self.on_new_file_response)
+
+    def on_new_file_response(
+        self,
+        dialog: Gtk.FileDialog,
+        result: Gio.AsyncResult
+    ) -> None:
+        file = dialog.save_finish(result)
+
+        if file is not None:
+            self.save_file(file)
+
+    def save_file(self, file: Gio.File) -> None:
+        to_save = dict()
+        to_save
+
+        # If there is nothing to save, return early
+        if not text:
+            return
+
+        bytes = GLib.Bytes.new(text.encode('utf-8'))
+
+        # Start the asynchronous operation to save the data into the file
+        file.replace_contents_bytes_async(
+            bytes,
+            None,
+            False,
+            Gio.FileCreateFlags.NONE,
+            None,
+            self.save_file_complete
+        )
+
+    def save_file_complete(
+        self,
+        file: Gio.File,
+        result: Gio.AsyncResult
+    ) -> None:
+        res = file.replace_contents_finish(result)
+
+        if not res:
+            print(f"Unable to save {display_name}")
+
         self.window_viewstack.set_visible_child_name("split_view_page")
 
     def show_move_to_dialog(
