@@ -163,6 +163,12 @@ class Meal(Adw.SidebarItem):
 
         self.cache_outdated = True
 
+    def clear_all(self) -> None:
+        """ Remove all ingredients from meal """
+        self.ingredients.remove_all()
+        self.update_subtitle()
+        self.cache_outdated = True
+
     def set_selectable(self, is_selectable: bool) -> None:
         for ingredient in self.ingredients:
             ingredient.set_selectable(is_selectable)
@@ -181,3 +187,14 @@ class Meal(Adw.SidebarItem):
             msg += f'\n\t[No ingredients]'
 
         return msg
+
+    def serialize(self) -> str:
+        """Return data that can be stored in JSON format."""
+        data = {"name": self.get_title(), "ingredients": []}
+
+        i = 0
+        while ingredient := self.ingredients.get_item(i):
+            data["ingredients"].append(ingredient.serialize())
+            i += 1
+
+        return data

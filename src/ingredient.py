@@ -46,6 +46,8 @@ def show_edit_dialog(
             sidebar_section_model = window.sidebar_section_model
             sidebar_section_model.update_meal_position(selected_meal, old_date)
 
+        window.save_to_file()
+
     dialog = NewIngredientDialog(
         do_edit,
         ingredient.get_title(),
@@ -65,6 +67,8 @@ def duplicate(
     selected_meal = window.sidebar.get_selected_item()
 
     selected_meal.add_ingredient(new_ingredient)
+
+    window.save_to_file()
 
 def eat(
     ingredient: 'Ingredient',
@@ -172,8 +176,14 @@ class Ingredient(Adw.ActionRow):
             self.window_move_to_action
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         bb_date = self.bb_date
         bb_msg = f"exp. {bb_date.format('%x')}" if bb_date else "undated"
 
         return f"{self.get_title()} ({bb_msg}) -- {'un' if not self.frozen else ''}frozen"
+
+    def serialize(self) -> str:
+        """Return data that can be stored in JSON format."""
+        ymd = self.bb_date.get_ymd() if self.bb_date else None
+
+        return {"name": self.get_title(), "date": ymd}

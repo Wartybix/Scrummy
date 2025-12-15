@@ -29,6 +29,9 @@ from scrummy import APPLICATION_ID, PREFIX, VERSION
 
 
 # TODO: Move flatpak JSON file to build-aux 
+# TODO: allow meal to be opened from file manager
+# TODO: ctrl+w should close window?
+# TODO: plus icons to add buttons
 
 class ScrummyApplication(Adw.Application):
     """The main application singleton class."""

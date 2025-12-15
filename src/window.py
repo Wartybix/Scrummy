@@ -27,6 +27,7 @@ from scrummy.move_to_dialog import MoveToDialog
 from scrummy import PREFIX
 from typing import Optional, List
 from gettext import ngettext
+import json
 
 @Gtk.Template(resource_path=f'{PREFIX}/window.ui')
 class ScrummyWindow(Adw.ApplicationWindow):
@@ -54,6 +55,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     select_mode_button = Gtk.Template.Child()
     selection_title = Gtk.Template.Child()
     window_viewstack = Gtk.Template.Child()
+    unsorted_food_section = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -111,16 +113,146 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.add_action(self.new_file_action)
 
         self.selected_ingredients = []
+        self.current_file = None
+
+        # TODO: watch for changes to file
 
         self.refresh_main_content()
+
+    def purge(self) -> None:
+        sections = self.sidebar.get_sections()
+        print(sections)
+
+        self.sidebar.remove_all()
+        self.sidebar.prepend(self.unsorted_food_section)
+
+        # TODO: Don't forget to clear history when this is implemented too
+
+        self.unsorted_food.clear_all()
+        # TODO: make function for auto navigating back to sidebar page
+        self.sidebar.set_selected(0)
+        self.sidebar_section_model = SidebarSectionModel(self.sidebar)
+
+    def refresh_can_move_to(self):
+        all_meals = self.sidebar.get_items()
+        self.move_selected_ingredients_action.set_enabled(len(all_meals) > 1)
 
     def open_file_dialog(
         self,
         action: Gio.Action,
         parameter: GLib.Variant
     ) -> None:
-        # TODO: make functional
+        # Create new file selection dialog, using "open" mode
+        native = Gtk.FileDialog()
+        file_filter = Gtk.FileFilter()
+
+        file_filter.add_mime_type('application/json')
+
+        file_filter.set_name(_('JSON Files'))
+
+        native.set_default_filter(file_filter)
+        native.set_title(_('Open Meals Data'))
+
+        native.open(self, None, self.on_open_response)
+
+    def on_open_response(
+        self,
+        dialog: Gtk.FileDialog,
+        result: Gio.AsyncResult
+    ) -> None:
+        file = dialog.open_finish(result)
+
+        if file is not None:
+            self.open_file(file)
+
+    def open_file(self, file: Gio.File) -> None:
+        file.load_contents_async(None, self.open_file_complete)
+
+    def decode_ingredient(self, data: dict) -> Ingredient:
+        print(f"raw data: {data}")
+        ymd = data["date"]
+
+        if ymd:
+            print(data["date"])
+            year, month, day = data["date"]
+
+            date = GLib.DateTime.new_local(
+                year,
+                month,
+                day,
+                0,
+                0,
+                0
+            )
+        else:
+            date = None
+
+        return Ingredient(
+            data["name"],
+            date,
+            self.move_selected_ingredients_action
+        )
+
+    def decode_meal(self, data: dict) -> Meal:
+        meal = Meal(data["name"], Gio.ListStore(), False)
+
+        for ingredient_json in data["ingredients"]:
+            ingredient = self.decode_ingredient(ingredient_json)
+            meal.add_ingredient(ingredient)
+
+        return meal
+
+    def open_file_complete(
+        self,
+        file: Gio.File,
+        result: Gio.AsyncResult
+    ) -> None:
+        contents = file.load_contents_finish(result)
+
+        if not contents[0]:
+            path = file.peek_path()
+            print(f"Unable to open {path}: {contents[1]}")
+            return
+
+        try:
+            text = contents[1].decode("utf-8")
+        except UnicodeError as err:
+            path = file.peek_path()
+            print(f"Unable to load the contents of {path}: the file is not encoded with UTF-8")
+            return
+
+        # TODO: limit size of json file to be read
+        # TODO: error dialog
+
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as e:
+            print(e)
+
+        unsorted = []
+        meals = []
+
+        for item_json in data["unsorted"]:
+            item = self.decode_ingredient(item_json)
+            unsorted.append(item)
+
+        for meal_json in data["meals"]:
+            meal = self.decode_meal(meal_json)
+            meals.append(meal)
+
+        self.purge()
+
+        for item in unsorted:
+            self.unsorted_food.add_ingredient(item)
+
+        for meal in meals:
+            self.sidebar_section_model.add_meal(meal)
+
+        self.current_file = file
+
         self.window_viewstack.set_visible_child_name("split_view_page")
+        self.refresh_main_content()
+        self.refresh_can_move_to()
 
     def new_file_dialog(
         self,
@@ -128,7 +260,84 @@ class ScrummyWindow(Adw.ApplicationWindow):
         parameter: GLib.Variant
     ) -> None:
         # TODO: make functional
+        native = Gtk.FileDialog()
+        file_filter = Gtk.FileFilter()
+
+        file_filter.add_mime_type('application/json')
+
+        file_filter.set_name(_('JSON Files'))
+
+        native.set_default_filter(file_filter)
+        native.set_title(_('Save Meals Data'))
+
+        # TRANSLATORS: this is used for the default file name in the 'new meal'
+        # file dialog. e.g. 'meals.json'.
+        initial_name_base = _("meals")
+        initial_name = f"{initial_name_base}.json"
+        native.set_initial_name(initial_name)
+
+        native.save(self, None, self.on_new_file_response)
+
+    def on_new_file_response(
+        self,
+        dialog: Gtk.FileDialog,
+        result: Gio.AsyncResult
+    ) -> None:
+        file = dialog.save_finish(result)
+
+        if file is None:
+            return
+
+        self.purge()
+        self.current_file = file
+
         self.window_viewstack.set_visible_child_name("split_view_page")
+        self.move_selected_ingredients_action.set_enabled(False)
+        self.refresh_main_content()
+
+        self.save_to_file()
+
+    def save_to_file(self) -> None:
+        if not self.current_file:
+            print("Warning: tried to save without an open file.")
+            return
+
+        print("Saving...") # TODO: check for redundancies & remove
+        to_save = {"unsorted": [], "meals": []}
+
+        unsorted_items = self.unsorted_food.serialize()["ingredients"]
+        to_save["unsorted"] = unsorted_items
+
+        meals = self.sidebar.get_items()
+        start_index = self.sidebar_section_model.offset
+        for i in range(start_index, len(meals)):
+            to_save["meals"].append(meals[i].serialize())
+
+        text = json.dumps(to_save)
+
+        bytes = GLib.Bytes.new(text.encode('utf-8'))
+
+        # Start the asynchronous operation to save the data into the file
+        self.current_file.replace_contents_bytes_async(
+            bytes,
+            None,
+            False,
+            Gio.FileCreateFlags.NONE,
+            None,
+            self.save_file_complete
+        )
+
+        # TODO: wait for async save finish before window close etc
+
+    def save_file_complete(
+        self,
+        file: Gio.File,
+        result: Gio.AsyncResult
+    ) -> None:
+        res = file.replace_contents_finish(result)
+
+        if not res:
+            print(f"Unable to save {display_name}")
 
     def show_move_to_dialog(
         self,
@@ -165,6 +374,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
             )
 
         self.sidebar.set_selected(source_meal.get_index())
+
+        self.save_to_file()
 
     def eat_selected_ingredients(
         self,
@@ -209,6 +420,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         toast.set_button_label(_("Undo")) # TODO: make this button do something
         toast.set_priority(Adw.ToastPriority.HIGH)
         self.toast_overlay.add_toast(toast)
+
+        self.save_to_file()
 
     @Gtk.Template.Callback()
     def enable_select_mode(self, widget: Gtk.Widget, **kwargs) -> None:
@@ -308,6 +521,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
             )
             self.main_nav_page.set_title(new_name)
 
+            self.save_to_file()
+
         dialog = NewMealDialog(
             do_rename,
             selected_meal.get_title()
@@ -339,6 +554,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         )
         self.toast_overlay.add_toast(toast)
 
+        self.save_to_file()
+
     def eat_meal(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         # TODO: fix cases where sidebar selected desynced from main view
         selected_item = self.sidebar.get_selected_item()
@@ -346,8 +563,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.refresh_main_content()
         self.split_view.set_show_content(False)
 
-        all_meals = self.sidebar.get_items()
-        self.move_selected_ingredients_action.set_enabled(len(all_meals) > 1)
+        self.refresh_can_move_to()
 
         toast = Adw.Toast.new(
             # TRANSLATORS: {} represents a name of a meal.
@@ -356,6 +572,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         toast.set_button_label(_("Undo")) # TODO: make this button do something
         toast.set_priority(Adw.ToastPriority.HIGH)
         self.toast_overlay.add_toast(toast)
+
+        self.save_to_file()
 
     def set_main_page(self, is_empty: bool) -> None:
         page_name = "empty-meal-page" if is_empty else "ingredients-page"
@@ -386,7 +604,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
             self.eat_btn.set_visible(True)
 
-            empty_status_page_title = _("Empty Meal")
+            empty_status_page_title = _("Empty Meal") # TODO: change to 'no ingredients'
             empty_status_page_desc = _("Add ingredients to sort this meal in the agenda")
 
         self.main_nav_page.set_title(page_title)
@@ -430,6 +648,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
             self.move_selected_ingredients_action.set_enabled(True)
 
+            self.save_to_file()
+
         dialog = NewMealDialog(add_meal)
         dialog.present(self)
 
@@ -456,6 +676,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
                     selected_item,
                     old_date
                 )
+
+            self.save_to_file()
 
         dialog = NewIngredientDialog(add_ingredient)
         dialog.present(self)
