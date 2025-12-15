@@ -43,6 +43,8 @@ class MoveToDialog(Adw.Dialog):
     """ A dialog to move an ingredient into another meal """
     __gtype_name__ = "MoveToDialog"
 
+    # TODO: allow double click on radio button row?
+
     main_page = Gtk.Template.Child()
     move_btn = Gtk.Template.Child()
     

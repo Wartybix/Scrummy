@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="scrummy">
 	<schema id="@APPLICATION_ID@" path="@PREFIX@/">
+		<key name="working-filepath" type="s">
+			<default>""</default>
+		</key>
 	</schema>
 </schemalist>

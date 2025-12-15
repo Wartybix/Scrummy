@@ -115,6 +115,17 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.selected_ingredients = []
         self.current_file = None
 
+        self.settings = self.get_application().get_settings()
+        working_filepath = self.settings.get_string('working-filepath')
+
+        if working_filepath:
+            self.current_file = Gio.File.new_for_path(working_filepath)
+            if self.current_file.query_exists():
+                self.window_viewstack.set_visible_child_name("split_view_page")
+                self.open_file(self.current_file)
+            else:
+                print("working file does not exist!") # TODO: change to dialog
+
         # TODO: watch for changes to file
 
         self.refresh_main_content()
@@ -254,6 +265,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.refresh_main_content()
         self.refresh_can_move_to()
 
+        self.settings.set_string("working-filepath", file.get_path())
+
     def new_file_dialog(
         self,
         action: Gio.Action,
@@ -294,6 +307,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.window_viewstack.set_visible_child_name("split_view_page")
         self.move_selected_ingredients_action.set_enabled(False)
         self.refresh_main_content()
+
+        self.settings.set_string("working-filepath", file.get_path())
 
         self.save_to_file()
 
