@@ -130,9 +130,14 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         self.refresh_main_content()
 
+    @Gtk.Template.Callback()
+    def on_split_view_notify_collapsed(self, split_view, user_data):
+        if not split_view.get_collapsed():
+            print("notify collapsed")
+            self.refresh_main_content()
+
     def purge(self) -> None:
         sections = self.sidebar.get_sections()
-        print(sections)
 
         self.sidebar.remove_all()
         self.sidebar.prepend(self.unsorted_food_section)
@@ -140,7 +145,6 @@ class ScrummyWindow(Adw.ApplicationWindow):
         # TODO: Don't forget to clear history when this is implemented too
 
         self.unsorted_food.clear_all()
-        # TODO: make function for auto navigating back to sidebar page
         self.sidebar.set_selected(0)
         self.sidebar_section_model = SidebarSectionModel(self.sidebar)
 
@@ -263,6 +267,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
         self.window_viewstack.set_visible_child_name("split_view_page")
         self.refresh_main_content()
+        self.split_view.set_show_content(False)
         self.refresh_can_move_to()
 
         self.settings.set_string("working-filepath", file.get_path())
@@ -272,7 +277,6 @@ class ScrummyWindow(Adw.ApplicationWindow):
         action: Gio.Action,
         parameter: GLib.Variant
     ) -> None:
-        # TODO: make functional
         native = Gtk.FileDialog()
         file_filter = Gtk.FileFilter()
 
@@ -307,6 +311,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
         self.window_viewstack.set_visible_child_name("split_view_page")
         self.move_selected_ingredients_action.set_enabled(False)
         self.refresh_main_content()
+        self.split_view.set_show_content(False)
 
         self.settings.set_string("working-filepath", file.get_path())
 
@@ -575,7 +580,10 @@ class ScrummyWindow(Adw.ApplicationWindow):
         # TODO: fix cases where sidebar selected desynced from main view
         selected_item = self.sidebar.get_selected_item()
         self.sidebar_section_model.remove_meal(selected_item)
-        self.refresh_main_content()
+
+        if not self.split_view.get_collapsed():
+            self.refresh_main_content()
+
         self.split_view.set_show_content(False)
 
         self.refresh_can_move_to()
@@ -640,26 +648,17 @@ class ScrummyWindow(Adw.ApplicationWindow):
         selected_item.set_selectable(False)
         self.selected_ingredients = []
 
-        print('------------')
-        for meal in list(self.sidebar.get_items()):
-            print(meal)
-
-        self.split_view.set_show_content(True);
-
     @Gtk.Template.Callback()
     def on_sidebar_activated(self, index: int, user_data: any) -> None:
         print("sidebar activated")
         self.refresh_main_content()
+        self.split_view.set_show_content(True)
 
     def add_meal_dialog(self, action: Gio.Action, parameter: GLib.Variant) -> None:
         def add_meal(name: str) -> None:
             meal = Meal(name, Gio.ListStore(), False)
 
             self.sidebar_section_model.add_meal(meal)
-
-            print('------------')
-            for meal in list(self.sidebar.get_items()):
-                print(meal)
 
             self.move_selected_ingredients_action.set_enabled(True)
 

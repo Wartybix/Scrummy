@@ -71,6 +71,8 @@ template $ScrummyWindow: Adw.ApplicationWindow {
         child: Adw.NavigationSplitView split_view {
           min-sidebar-width: 220;
 
+          notify::collapsed => $on_split_view_notify_collapsed();
+
           [sidebar]
           Adw.NavigationPage {
             title: _("Meals");
