@@ -57,6 +57,8 @@ class ScrummyWindow(Adw.ApplicationWindow):
     window_viewstack = Gtk.Template.Child()
     unsorted_food_section = Gtk.Template.Child()
 
+    # FIXME: blank toasts with items with '&' sign
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
