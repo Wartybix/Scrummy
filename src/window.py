@@ -629,7 +629,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
 
             self.eat_btn.set_visible(True)
 
-            empty_status_page_title = _("Empty Meal") # TODO: change to 'no ingredients'
+            empty_status_page_title = _("No Ingredients")
             empty_status_page_desc = _("Add ingredients to sort this meal in the agenda")
 
         self.main_nav_page.set_title(page_title)
