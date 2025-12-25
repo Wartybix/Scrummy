@@ -57,8 +57,6 @@ class ScrummyWindow(Adw.ApplicationWindow):
     window_viewstack = Gtk.Template.Child()
     unsorted_food_section = Gtk.Template.Child()
 
-    # FIXME: blank toasts with items with '&' sign
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -441,6 +439,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
         toast = Adw.Toast.new(toast_msg)
         toast.set_button_label(_("Undo")) # TODO: make this button do something
         toast.set_priority(Adw.ToastPriority.HIGH)
+        toast.set_use_markup(False)
         self.toast_overlay.add_toast(toast)
 
         self.save_to_file()
@@ -574,6 +573,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
             # TRANSLATORS: {} represents a name of a meal.
             _('‘{}’ duplicated').format(new_meal.get_title())
         )
+        toast.set_use_markup(False)
         self.toast_overlay.add_toast(toast)
 
         self.save_to_file()
@@ -594,6 +594,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
             # TRANSLATORS: {} represents a name of a meal.
             _("‘{}’ marked as eaten").format(selected_item.get_title())
         )
+        toast.set_use_markup(False)
         toast.set_button_label(_("Undo")) # TODO: make this button do something
         toast.set_priority(Adw.ToastPriority.HIGH)
         self.toast_overlay.add_toast(toast)

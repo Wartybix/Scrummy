@@ -68,6 +68,7 @@ class MoveToDialog(Adw.Dialog):
         for meal in all_meals:        
             row = Adw.ActionRow()
             row.set_title(meal.get_title())
+            row.set_use_markup(False)
 
             radio_button = Gtk.CheckButton()
             radio_button.set_valign(Gtk.Align.CENTER)
