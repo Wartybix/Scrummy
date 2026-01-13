@@ -13,10 +13,10 @@ gnome = import('gnome')
 # profiles.
 
 if get_option('profile') == 'development'
-  APPLICATION_ID = 'io.github.wartybix.Scrummy.Devel'
+  APPLICATION_ID = 'org.gnome.gitlab.wartybix.Scrummy.Devel'
   PREFIX = '/io/github/wartybix/Scrummy/Devel'
 else
-  APPLICATION_ID = 'io.github.wartybix.Scrummy'
+  APPLICATION_ID = 'org.gnome.gitlab.wartybix.Scrummy'
   PREFIX = '/io/github/wartybix/Scrummy'
 endif
 

@@ -62,7 +62,7 @@ class ScrummyApplication(Adw.Application):
         win = self.props.active_window
         if not win:
             win = ScrummyWindow(application=self)
-            if self.get_application_id() == "io.github.wartybix.Scrummy.Devel":
+            if self.get_application_id() == "org.gnome.gitlab.wartybix.Scrummy.Devel":
                 win.get_style_context().add_class("devel")
 
         win.present()

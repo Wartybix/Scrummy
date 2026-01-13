@@ -6,7 +6,7 @@ conf.set('bindir', get_option('prefix') / get_option('bindir'))
 
 desktop_file = i18n.merge_file(
         input: configure_file(
-          input: 'io.github.wartybix.Scrummy.desktop.in',
+          input: 'org.gnome.gitlab.wartybix.Scrummy.desktop.in',
           output: APPLICATION_ID + '.desktop.in',
           configuration: conf
         ),
@@ -24,7 +24,7 @@ endif
 
 appstream_file = i18n.merge_file(
         input: configure_file(
-          input: 'io.github.wartybix.Scrummy.metainfo.xml.in',
+          input: 'org.gnome.gitlab.wartybix.Scrummy.metainfo.xml.in',
           output: APPLICATION_ID + '.metainfo.xml.in',
           configuration: conf
         ),
@@ -40,7 +40,7 @@ test('Validate appstream file', appstreamcli,
 
 install_data(
   configure_file(
-    input: 'io.github.wartybix.Scrummy.gschema.xml.in',
+    input: 'org.gnome.gitlab.wartybix.Scrummy.gschema.xml.in',
     output: APPLICATION_ID + '.gschema.xml',
     configuration: conf
   ),
@@ -54,7 +54,7 @@ test('Validate schema file',
 
 
 configure_file(
-  input: 'io.github.wartybix.Scrummy.service.in',
+  input: 'org.gnome.gitlab.wartybix.Scrummy.service.in',
   output: APPLICATION_ID + '.service',
   configuration: conf,
   install_dir: get_option('datadir') / 'dbus-1' / 'services'

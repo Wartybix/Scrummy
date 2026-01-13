@@ -1,5 +1,5 @@
 {
-    "id" : "io.github.wartybix.Scrummy.Devel",
+    "id" : "org.gnome.gitlab.wartybix.Scrummy.Devel",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
