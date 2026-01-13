@@ -29,6 +29,9 @@ from scrummy import APPLICATION_ID, PREFIX, VERSION
 
 
 # TODO: Move flatpak JSON file to build-aux 
+# TODO: allow meal to be opened from file manager
+# TODO: ctrl+w should close window?
+# TODO: plus icons to add buttons
 
 class ScrummyApplication(Adw.Application):
     """The main application singleton class."""
@@ -41,8 +44,14 @@ class ScrummyApplication(Adw.Application):
         self.create_action('about', self.on_about_action)
         self.create_action('preferences', self.on_preferences_action)
 
+        self.settings = Gio.Settings(schema_id=self.get_application_id())
+
         self.set_accels_for_action('win.open_file', ['<Ctrl>o'])
         self.set_accels_for_action('win.new_file', ['<Ctrl>n'])
+
+    def get_settings(self) -> Gio.Settings:
+        """ Get the application's settings """
+        return self.settings
 
     def do_activate(self):
         """Called when the application is activated.

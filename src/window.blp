@@ -22,6 +22,8 @@ template $ScrummyWindow: Adw.ApplicationWindow {
       Adw.ViewStackPage {
         name: "status_page";
 
+        // TODO: add open dnd overlay
+
         child: Adw.ToolbarView {
           [top]
           Adw.HeaderBar {
@@ -68,6 +70,8 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
         child: Adw.NavigationSplitView split_view {
           min-sidebar-width: 220;
+
+          notify::collapsed => $on_split_view_notify_collapsed();
 
           [sidebar]
           Adw.NavigationPage {
@@ -118,7 +122,7 @@ template $ScrummyWindow: Adw.ApplicationWindow {
                   description: _("Try a different search");
                 };
 
-                Adw.SidebarSection {
+                Adw.SidebarSection unsorted_food_section {
                   $Meal unsorted_food {
                     title: _("Unsorted Food");
                     icon-name: "refrigerator-symbolic";
