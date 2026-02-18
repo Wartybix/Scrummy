@@ -1,6 +1,17 @@
 using Gtk 4.0;
 using Adw 1;
 
+
+StringFilter ingredient_search_filter {
+  ignore-case: true;
+  match-mode: substring;
+  expression: expr item as <$Ingredient>.name;
+}
+
+FilterListModel ingredient_search_list_model {
+  filter: ingredient_search_filter;
+}
+
 template $ScrummyWindow: Adw.ApplicationWindow {
   title: _("Scrummy");
   default-width: 800;
@@ -201,7 +212,9 @@ template $ScrummyWindow: Adw.ApplicationWindow {
                   margin-end: 6;
 
                   [child]
-                  SearchEntry ingredient_search_entry {}
+                  SearchEntry ingredient_search_entry {
+                    changed => $ingredient_search_changed();
+                  }
                 }
               }
 
@@ -219,6 +232,14 @@ template $ScrummyWindow: Adw.ApplicationWindow {
 
                       styles ["pill", "suggested-action"]
                     }
+                  };
+                }
+                Adw.ViewStackPage no_results_page {
+                  name: "no-results-page";
+                  child: Adw.StatusPage {
+                    icon-name: "edit-find-symbolic";
+                    title: _("No Results Found");
+                    description: _("Try a different search");
                   };
                 }
                 Adw.ViewStackPage ingredients_page {

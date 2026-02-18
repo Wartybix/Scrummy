@@ -56,6 +56,7 @@ class ScrummyWindow(Adw.ApplicationWindow):
     selection_title = Gtk.Template.Child()
     window_viewstack = Gtk.Template.Child()
     unsorted_food_section = Gtk.Template.Child()
+    search_filter = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -129,6 +130,11 @@ class ScrummyWindow(Adw.ApplicationWindow):
         # TODO: watch for changes to file
 
         self.refresh_main_content()
+
+    @Gtk.Template.Callback()
+    def ingredient_search_changed(self, search_entry: Gtk.SearchEntry) -> None:
+        print('ingredient search changed')
+        self.content_viewstack.set_visible_child_name('no-results-page')
 
     @Gtk.Template.Callback()
     def on_split_view_notify_collapsed(self, split_view, user_data):
